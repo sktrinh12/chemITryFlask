@@ -1,69 +1,24 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <title>FLASK Test App CHEMITRY</title>
+  <title>FLASK Test App CHEMITRY</title> 
+  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/css/bootstrap.min.css">
+  <link rel="stylesheet" type="text/css" href="/static/stylesheet.css"> 
   <link rel="shortcut icon" href="{{ url_for('static', filename='favicon.ico') }}">
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <link rel="stylesheet" href="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/css/bootstrap.min.css">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
-  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.3.7/js/bootstrap.min.js"></script>
-
-  <style>
-    /* Remove the navbar's default margin-bottom and rounded borders */
-    .navbar {
-      margin-bottom: 2px;
-      margin-top: 2px;
-      border-radius: 2px;
-      background-color:#DBDAE8;
-    }
-
-
-    .navbar-brand {
-        font-size: 45px !important;
-        letter-spacing:10px;
-    }
-
-    /* Set black background color, white text and some padding */
-    footer {
-      background-color: #555;
-      color: white;
-      padding: 5px;
-    }
-
-    .center {
-        display: block;
-        margin-left : auto;
-        margin-right: auto;
-        width:50%;
-    }
-
-    .navbar-nav li a:hover, .navbar-nav li.active a{
-        color: #2A4494;
-    }
-
-    .greet {
-    padding-top: 15px;
-    height:10px /* original height (25px) minus padding-top (3px) */
-    text-align: center;
-    left:-10px;
-    font-weight:bold;
-    }
-
-    #replyform {
-    width:65%;
-    }
-
-  </style>
+  <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> 
+  <script src="/static/jscripts.js"></script>
 </head>
 
 <header>
 	<nav class="navbar navbar-expand-md navbar-dark bg-dark">
         <div class="container-fluid">
                 <div class="navbar-left logo">
-                <img style="max-width:50px" src="{{ url_for('static', filename='images/moleculeLogo.png') }}">
+                <img style="max-width:55px" src="{{ url_for('static', filename='images/moleculeLogo.png') }}">
                 </div>
-                    <a class="navbar-brand" href="/dashboard/">ChemITry</a>
+                    <a class="navbar-brand" href="/dplystruc/">ChemITry : <span style="letter-spacing:4px;font-size:40px;">try Chemistry & IT</span></a>
     <ul class="nav navbar-nav navbar-right">
         {% if session.logged_in %}
         <li class="greet">Greetings {{session.username}}</li>
@@ -78,10 +33,14 @@
         </div>
     </nav>
 
-
-
 </header>
-
+{% from "macros_navbar.html" import nav_link with context %}
+<ul class="nav nav-tabs" id="navtabs" role="tablist">
+   {{ nav_link('dplystruc', 'ChemSpiderID Search') }}
+   {{ nav_link('smrtsrch', 'Substructure Search') }}
+   {{ nav_link('datatable', 'Compound Database') }}  
+   {{ nav_link('jinjaman', 'ChemSpider WebScrape') }}
+</ul>
 
 <body>
     <div class="border-row" style="width:100%; margin-bottom:15px;"></div>
@@ -99,11 +58,8 @@
                 {% endfor %}
             {% endif %}
         {% endwith %}
-
     {% block body %}{% endblock %}
-
-
-
+   
     </div>
 </body>
 
