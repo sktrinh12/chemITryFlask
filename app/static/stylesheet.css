@@ -1,9 +1,18 @@
 @charset "UTF-8";
 
-#cborder { 
-   border-width: 4px;
-   border-color: red;
-   border-style: solid;
+#form-text {
+   font-size:110%;
+}
+
+.container {
+  border-style: solid;
+  border-width: 1px;  
+  margin-bottom: 10px;
+  text-align:left;
+}
+
+.border-50 { 
+   border-color: rgba(0,0,255,0.5); 
 }
 
 table.subsrchRes {
@@ -95,11 +104,11 @@ tr:hover {
 }
 
 #form-subsrch, #form-dplystruc { /*form styles*/
-  width: 700px;
-  background-color: white;
+  width: 500px;
+  background-color: #DBE9EB;
   border-radius: 4px;
-  margin-top: 40px;
-  padding: 20px;
+  margin-top: 20px;
+  padding: 10px;
   position:relative;
 }
 

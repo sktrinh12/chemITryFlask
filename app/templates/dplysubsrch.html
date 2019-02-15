@@ -7,13 +7,14 @@
    <br>
       <strong>SMARTS string: </strong>{{query}}
    </p>
-   <input type='text' name='smrtsrch' placeholder='c:c:c:c:c:c=c' required>
-   <input class="submit-button" type ='submit'>
+   <!--input type='text' name='smrtsrch' placeholder='c:c:c:c:c:c=c' requiredi-->
+   <textarea id='form-text' name="smrtsrch" cols="50" rows="5" required>cccccc=c</textarea> 
+   <input id='form-text' class="submit-button" type ='submit'>
    <div id="lock-modal"></div>
    <div id="loading-circle"></div>
    
 <div id="table-results">
-   <h3 style="color:#0A2833"> Found {{lengthLst}} matches! </h3>
+   <h3 class="found-result"> Found {{lengthLst}} matches! </h3>
    <table class="subsrchRes"> 
       {% if lengthLst <= 5 %}
          <tr>
