@@ -5,7 +5,7 @@ MYSQL_DATABASE_PASSWORD = 'bon78952'
 MYSQL_DATABASE_DB = 'chemitrycmpds'
 MYSQL_DATABASE_HOST = 'localhost'
 MAIL_USERNAME ='sktrinh12@gmail.com'
-SECRET_KEY = 'bon78952' #needs this or flash does not work
+SECRET_KEY = 'bon' #needs this or flash does not work
 
 '''FOR MAILING SERVICES'''
 #DEBUG=True

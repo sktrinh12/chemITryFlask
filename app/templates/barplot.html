@@ -1,0 +1,27 @@
+{% extends "header.html" %}
+
+{% block body %}
+
+    <link href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" rel="stylesheet" type="text/css">
+   
+
+    <div class="dropdown">
+        <h3>Bokeh Plot testing</h3>
+        <br>
+        <form id="form-barplot" method="post">
+           <label for="barplotBinNum">Enter a integer from 15-100 </label>
+           <input type="text" id="barplotBinNum" placeholder='15' required>
+         
+           <div class="col-12"> 
+           <button id="updatebarplot" class="submit-button" type="submit">Plot</button>
+           </div>
+        </form>
+    </div>
+    <p>the number is: {{binNum}} </p>
+    <div id="barplot-content">
+        {{ barplot_div|safe }}    
+        {{ barplot_script|safe }}
+    </div>
+    <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.js"></script>    
+  
+{% endblock %}

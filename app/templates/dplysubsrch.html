@@ -2,24 +2,31 @@
 {% block body %}
 {% set lengthLst = svgoutput|length  %}
 <h3>Enter SMARTS string to query the database</h3>
-<form id='form-subsrch' method='post' action="{{ url_for('smrtsrch') }}" enctype='multipart/form-data'>
+<div class="border-container">
+<form id="form-subsrch" method='post' action="{{ url_for('smrtsrch') }}" enctype="multipart/form-data">
    <p>
-   <br>
       <strong>SMARTS string: </strong>{{query}}
    </p>
-   <!--input type='text' name='smrtsrch' placeholder='c:c:c:c:c:c=c' requiredi-->
-   <textarea id='form-text' name="smrtsrch" cols="50" rows="5" required>cccccc=c</textarea> 
+   <!--input type='text' name='smrtsrch' placeholder='c:c:c:c:c:c=c' required-->
+   <textarea type='text' name='smrtsrch'  cols='71',rows='7' required>cccccc</textarea>
+   <br>
    <input id='form-text' class="submit-button" type ='submit'>
-   <div id="lock-modal"></div>
-   <div id="loading-circle"></div>
-   
-<div id="table-results">
-   <h3 class="found-result"> Found {{lengthLst}} matches! </h3>
+</form>
+</div>   
+{% if error %}
+<p> {{error}} </p>
+{% endif %}
+<div id="loading-circle"></div>   
+<div id="lock-modal"></div>
+
+<br>
+<div id='table-results'>
+   <h3 id="found-results"> Found {{lengthLst}} matches! </h3> 
    <table class="subsrchRes"> 
       {% if lengthLst <= 5 %}
          <tr>
                {% for i in range(lengthLst) %}
-                  <td class='svg-with-text'><img src="data:image/svg+xml,{{svgoutput[i][1]}}"></td>
+                  <td class='svg-with-text'>{{svgoutput[i][1]|safe}}</td>
                {% endfor %}
          </tr> 
          <tr>      
@@ -39,7 +46,7 @@
             {% set count = (5*j) %}
             <tr>
                   {% for i in range((count-5)+1,count+1) %}
-                     <td class='svg-with-text'><img src="data:image/svg+xml,{{svgoutput[i-1][1]}}"></td>
+                     <td class='svg-with-text'>{{svgoutput[i-1][1]|safe}}</td>
                   {% endfor %}
             </tr> 
             <tr>      
@@ -54,7 +61,7 @@
          
             <tr>
             {% for i in (range(1,remainder+1))|reverse %} 
-                     <td class='svg-with-text'><img src="data:image/svg+xml,{{svgoutput[(lengthLst-i)][1]}}"></td>
+                     <td class='svg-with-text'>{{svgoutput[(lengthLst-i)][1]|safe}}</td>
             {% endfor %}
             </tr>
             <tr>
@@ -65,9 +72,5 @@
       {% endif %}
    </table>
 </div>
-
-</form>
-
-
 
 {% endblock %}

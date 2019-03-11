@@ -1,10 +1,10 @@
-{%extends "header.html" %}
+{% extends "header.html" %}
 {% block body %} 
 
 
-<h3>Display Chemical Structure based on ChemSpider ID</h3>
+<h3>Display Chemical structure based on ChemSpider ID/h3>
 
-<form id="form-dplytanihm" method='post' action='{{ url_for('dplystruc') }}'>
+<form id="form-dplystruc" method='post' action='{{ url_for('dplystruc') }}'>
 <p><br><strong>ChemSpider ID:</strong>{{csid|safe}}</p>
    <input type='text' name='csid' placeholder="Enter CSID #" required>
    <input class="submit-button" type ='submit'>
@@ -13,7 +13,6 @@
 <p id="nfo"></p> <!--for jquery shows validation of csid # -->
 
 <div class="svg-with-text"><span> {{svg|safe}}</span>	
-<br>
 <p><font size="5">{{cname}}</font></p>
    <script>
    $( "form" ).submit(function( event ) {

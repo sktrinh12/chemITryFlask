@@ -2,16 +2,21 @@ from flask import (flash,render_template,redirect,url_for,request,session,send_f
 from passlib.hash import sha256_crypt
 from MySQLdb import escape_string as thwart
 import gc
-from functools import wraps
-from flask_mail import Mail, Message
+#from flask_mail import Mail, Message
 import os
-import pygal
-import pybel
-from app import app,db,hpath
-from app.models import Chemcmpd,RegistrationForm,SendEmailForm
+from app import app,hpath
+from app.models import RegistrationForm,SendEmailForm
 from flask_paginate import Pagination, get_page_args
+from bokeh.embed import components
+from app.funcs import genHeatMapTanimoto,pd,np,pybel,Chemcmpd,db,dplyStruc_ob,smrtSrch,genBarPlot
+from functools import wraps
 
-mail = Mail(app)
+#mail = Mail(app)
+dfm = pd.DataFrame([(csid,cname,pybel.readstring('smi',smi)) for csid,cname,smi in db.session.query(Chemcmpd.csid,Chemcmpd.cname,Chemcmpd.smi).order_by(Chemcmpd.csid).all()],columns =['csid','cname','molec'])
+dfm_fps = pd.DataFrame({'fps': dfm['molec'].apply(lambda x : x.calcfp())})
+dfm_fps.index = dfm['csid'] #have to change index after ; causes Nan problem in calcfp() otherwise
+dfm_amass = [float(amass[0]) for amass in db.session.query(Chemcmpd.amass).all()]
+MWdata = np.array(dfm_amass)
 
 @app.route('/')
 def main():
@@ -44,6 +49,19 @@ def login_required(f):
         else:
             flash('You need to login first!')
             return redirect(url_for('login_page'))
+    return wrap
+
+def special_requirement(f):
+    @wraps(f)
+    def wrap(*args,**kwargs):
+        try:
+            if 'sktrinh12' == session['username']:
+                return f(*args,**kwargs)
+            else:
+                return redirect(url_for('dplystruc'))
+        except:
+            flash('You do not have vision privledges!')
+            return redirect(url_for('dplystruc'))
     return wrap
 
 @app.route('/logout/')
@@ -143,19 +161,6 @@ def send_mail():
         error='The minimum or maximum amount of characters for Topic/Body were not met'
         return render_template('sendEmailForm.html',error=error)
 
-def special_requirement(f):
-    @wraps(f)
-    def wrap(*args,**kwargs):
-        try:
-            if 'sktrinh12' == session['username']:
-                return f(*args,**kwargs)
-            else:
-                return redirect(url_for('dplystruc'))
-        except:
-            flash('You do not have vision privledges!')
-            return redirect(url_for('dplystruc'))
-    return wrap
-
 @app.route('/protected/<path:filename>')
 @special_requirement
 def protected(filename):
@@ -163,38 +168,19 @@ def protected(filename):
         return send_from_directory(os.path.join(app.instance_path,''),filename)
     except:
         return redirect(url_for('main'))
-
-def smrtSrch(query):
-    try:
-        matchLst=[]
-        dfm = [(cn,sm) for cn,sm in db.session.query(Chemcmpd.cname,Chemcmpd.smi)]  
-        mols = {name:pybel.readstring('smi',strings) for name,strings in dfm if strings} 
-        highlighter = pybel._operations['highlight']
-        smarts = pybel.Smarts(query)
-        for name,mol in mols.items():
-            mol.removeh()
-            if smarts.findall(mol):
-                #mol.title = name 
-                highlighter.Do(mol.OBMol, query+' red')
-                matchLst.append( (name,mol.write('svg',opt={"u":None,"C":None,"P":325,'b':'transparent','B':'black'} ) ) )
-        return sorted(matchLst,key=lambda x:(x[0],x[1]))
-    except Exception as e:
-        return f'An error occured - {e}'
-        
-
-@app.route('/smrtsrch/',methods=['GET','POST'])
+ 
+@app.route('/smrtsrch/',methods=['POST','GET'])
 def smrtsrch():
     try:
         gc.collect()
         if request.method=='POST':
-            query = request.form['smrtsrch']
-            return render_template('dplysubsrch.html',svgoutput=smrtSrch(query),query=query)
-        elif request.method =='GET':
+            query = request.form['smrtsrch'] 
+            return render_template('dplysubsrch.html',svgoutput= smrtSrch(query,dfm) ,query=query)    
+        elif request.method=='GET':
             return render_template('dplysubsrch.html')
     except Exception as e: 
         error = f'Problem child - ({e})'
-        return render_template('dplysubsrch.html',svgoutput=error)
-
+        return render_template('dplysubsrch.html',error=error)
 
 @app.route('/dplystruc/',methods=['GET','POST'])
 def dplystruc():
@@ -210,21 +196,6 @@ def dplystruc():
         blank = f'<strong>No image to display - {e}</strong>'
         return render_template('displaystructure.html',svg=blank)
 
-def dplyStruc_ob(csid):
-    try: 
-        stmt = db.session.query(db.exists().where(Chemcmpd.csid==csid)).scalar()
-        if stmt:
-            result  = [(cn,sm) for cn,sm in db.session.query(Chemcmpd.cname,Chemcmpd.smi).filter_by(csid=csid)]  
-            mol = pybel.readstring('smi',result[0][1])
-            cname = result[0][0]
-            svg = mol.write('svg',opt={'C':None,'P':500,'u':None,'b':'transparent','B':'black'}) 
-            return (svg,cname)
-        else:
-            return (f'<strong>{csid} does not exist in the ChemSpider DB!</strong>','')
-    except Exception as e:
-        error_msg =  (f'An error occured when processing that ChemSpider ID ({e})','')
-        return error_msg
-
 @app.route('/datatable/')
 def datatable():
     try: 
@@ -233,3 +204,37 @@ def datatable():
         return render_template('datatable.html',output=datTbl,page=page)
     except Exception as e:
         return str(e)
+
+@app.route('/barplot/',defaults={'binNum':15},methods=['GET','POST'])
+@app.route('/barplot/<int:binNum>')
+def barplot(binNum):
+    plot = genBarPlot(binNum) 
+    script,div = components(plot)
+    return render_template('barplot.html',barplot_div=div,barplot_script=script)
+
+@app.route('/update_barplot',methods=['GET','POST'])
+def update_barplot(): 
+    if request.form == 'POST':
+        binNum = request.form['form-barplot']  
+    plot = genBarPlot(binNum)
+    script,div = components(plot)
+    return render_template('update_barplot.html',binNum=binNum,barplot_div=div,barplot_script=script)
+
+@app.route('/tanimoto/',methods=['GET','POST'])
+def tanimoto():
+    if request.method=='POST':
+        csid = int(request.form['csid'])
+        stmt=db.session.query(db.exists().where(Chemcmpd.csid==csid)).scalar()
+        if stmt:
+            csid_lst = dfm_fps.index.tolist()
+            tanimotoLst = [dfm_fps.loc[int(csid)].item() | dfm_fps.loc[int(cs)].item() for cs in csid_lst]
+            cname = db.session.query(Chemcmpd.cname).filter(Chemcmpd.csid==csid).scalar()
+            p = genHeatMapTanimoto(tanimotoLst,csid,csid_lst)
+            script,div = components(p)
+            error=''
+        else:
+            error=f'{csid} was not found in the database, try a different CSID#'
+            script,div,csid,cname=['']*4
+    else:
+        script,div,csid,cname,error = ['']*5
+    return render_template('dplytanihm.html',script=script,div=div,csid=csid,cname=cname,error=error) 

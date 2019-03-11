@@ -1,20 +1,23 @@
-{%extends "header.html" %}
+{% extends "header.html" %}
 {% block body %} 
 
+<link href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" rel="stylesheet" type="text/css">
 
-<h3>Display Chemical Structure based on ChemSpider ID</h3>
+<h3>Display Tanimoto Similarity Heatmap</h3>
 
-<form id="form-dplytanihm" method='post' action='{{ url_for('dplystruc') }}'>
-<p><br><strong>ChemSpider ID:</strong>{{csid|safe}}</p>
+<form id="form-dplytani" method='post' action='{{ url_for('tanimoto') }}'>
+<p><br><strong>ChemSpider ID : </strong>{{csid|safe}}</p>
    <input type='text' name='csid' placeholder="Enter CSID #" required>
    <input class="submit-button" type ='submit'>
 </form>
 
 <p id="nfo"></p> <!--for jquery shows validation of csid # -->
-
-<div class="svg-with-text"><span> {{svg|safe}}</span>	
+<p><strong> {{ error}}</strong> </p>
 <br>
-<p><font size="5">{{cname}}</font></p>
+<div class="svg-with-text"><span> {{div|safe}} {{script|safe}}</span>	
+	<p><font size="3">{{cname|safe}}</p>
+	<p>{{csid|safe}}</font></p>
+
    <script>
    $( "form" ).submit(function( event ) {
      if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
@@ -28,5 +31,6 @@
    </script>
 
 </div>
+<script src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.js"></script>    
 
 {% endblock %}
