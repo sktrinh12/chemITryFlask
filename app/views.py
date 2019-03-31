@@ -2,21 +2,28 @@ from flask import (flash,render_template,redirect,url_for,request,session,send_f
 from passlib.hash import sha256_crypt
 from MySQLdb import escape_string as thwart
 import gc
+import json
 #from flask_mail import Mail, Message
 import os
 from app import app,hpath
 from app.models import RegistrationForm,SendEmailForm
 from flask_paginate import Pagination, get_page_args
 from bokeh.embed import components
-from app.funcs import genHeatMapTanimoto,pd,np,pybel,Chemcmpd,db,dplyStruc_ob,smrtSrch,genBarPlot
+from bokeh.models.sources import AjaxDataSource
+from app.funcs import genHeatMapTanimoto,pd,np,pybel,Chemcmpd,db,dplyStruc_ob,smrtSrch,genBarPlot,prosDf,plotNetXBokeh,genUnitCircle
 from functools import wraps
-
 #mail = Mail(app)
-dfm = pd.DataFrame([(csid,cname,pybel.readstring('smi',smi)) for csid,cname,smi in db.session.query(Chemcmpd.csid,Chemcmpd.cname,Chemcmpd.smi).order_by(Chemcmpd.csid).all()],columns =['csid','cname','molec'])
-dfm_fps = pd.DataFrame({'fps': dfm['molec'].apply(lambda x : x.calcfp())})
-dfm_fps.index = dfm['csid'] #have to change index after ; causes Nan problem in calcfp() otherwise
-dfm_amass = [float(amass[0]) for amass in db.session.query(Chemcmpd.amass).all()]
-MWdata = np.array(dfm_amass)
+colnames=[ 'csid', 'sname', 'cname', 'stdinchi',  'mform','amass' ,'smi', 'logp', 'hbd', 'hba',  'numrotbonds',  'lrfive',  'psa',  'enthalpy',  'density',  'bp',  'arings',  'numN',  'numO',  'sssr',  'stereoctr',  'isnp',  'veberv' ] 
+sqldata = db.session.query(Chemcmpd).order_by('Common_Name')#.limit(100)
+dfm_main = pd.read_sql(sqldata.statement,db.session.bind)
+dfm_main.columns = colnames
+# dfm_molc = dfm_main[ ['csid','cname','smi']]
+# dfm_molc.smi = dfm_molc.smi.apply(lambda x: pybel.readstring('smi',x))
+# dfm_molc.columns = ['csid','cname','molec' ]
+dfm_fps = pd.DataFrame({'fps':dfm_main.smi.apply(lambda x: pybel.readstring('smi',x).calcfp())})
+dfm_fps.index = dfm_main.csid #have to change index after ; causes Nan problem in calcfp() otherwise
+MWdata = np.array(dfm_main.amass)
+
 
 @app.route('/')
 def main():
@@ -169,18 +176,30 @@ def protected(filename):
     except:
         return redirect(url_for('main'))
  
-@app.route('/smrtsrch/',methods=['POST','GET'])
+
+# @app.route('/test/',methods=['POST','GET'])
+# def test():
+#     if request.method=="POST":
+#         query=request.form['smrtsrch_input']
+#         print(query)
+#         res = smrtSrch(query,dfm_molc)
+#         print(res)
+#     else:
+#         res = ('','')
+#     return render_template('dplysubsrch.html',svgoutput=res[0],query=res[1]) 
+
+@app.route('/smrtsrch/')
 def smrtsrch():
-    try:
-        gc.collect()
-        if request.method=='POST':
-            query = request.form['smrtsrch'] 
-            return render_template('dplysubsrch.html',svgoutput= smrtSrch(query,dfm) ,query=query)    
-        elif request.method=='GET':
-            return render_template('dplysubsrch.html')
-    except Exception as e: 
-        error = f'Problem child - ({e})'
-        return render_template('dplysubsrch.html',error=error)
+    return render_template('dplysubsrch.html')
+        
+@app.route('/dplysmrtsrch/')
+def dplysmrtsrch():
+    gc.collect()
+    query = request.args.get('smrtstr')
+    result = smrtSrch(query,dfm_main)
+    svgoutput = result[0]
+    lengthSrchResult = result[1]
+    return jsonify(htmlTable=render_template('updateSubsrch.html',svgoutput=svgoutput), query=query, lengthSrchResult=lengthSrchResult)
 
 @app.route('/dplystruc/',methods=['GET','POST'])
 def dplystruc():
@@ -196,31 +215,36 @@ def dplystruc():
         blank = f'<strong>No image to display - {e}</strong>'
         return render_template('displaystructure.html',svg=blank)
 
+@app.route('/updateDplyStrc/')
+def updateDplyStrc():
+    csid = request.args.get('csid',type=int)
+    svg = dplyStruc_ob(csid)
+    return jsonify(html_content=render_template('updateDplyStrc.html',svg=svg[0]),csid=csid)
+
 @app.route('/datatable/')
 def datatable():
     try: 
         page = request.args.get('page',1,type=int)
-        datTbl=db.session.query(Chemcmpd).order_by('Common_Name').paginate(page=page,per_page=12)
+        datTbl= sqldata.paginate(page=page,per_page=12)
         return render_template('datatable.html',output=datTbl,page=page)
     except Exception as e:
         return str(e)
 
-@app.route('/barplot/',defaults={'binNum':15},methods=['GET','POST'])
-@app.route('/barplot/<int:binNum>')
-def barplot(binNum):
-    plot = genBarPlot(binNum) 
+@app.route('/barplot/')
+def barplot(): 
+    binNum = 10 
+    plot = genBarPlot(binNum,MWdata)
     script,div = components(plot)
-    return render_template('barplot.html',barplot_div=div,barplot_script=script)
+    return render_template('barplot.html',binNum=binNum,barplot_div=div,barplot_script=script)
 
-@app.route('/update_barplot',methods=['GET','POST'])
-def update_barplot(): 
-    if request.form == 'POST':
-        binNum = request.form['form-barplot']  
-    plot = genBarPlot(binNum)
+@app.route('/updateBar/')
+def updateBar():
+    binNum = request.args.get('binNum', type=int)
+    plot = genBarPlot(binNum,MWdata)
     script,div = components(plot)
-    return render_template('update_barplot.html',binNum=binNum,barplot_div=div,barplot_script=script)
+    return jsonify(html_plot=render_template('update_barplot.html', barplot_div=div,barplot_script=script))
 
-@app.route('/tanimoto/',methods=['GET','POST'])
+@app.route('/tanimoto/',methods=['POST','GET'])
 def tanimoto():
     if request.method=='POST':
         csid = int(request.form['csid'])
@@ -233,8 +257,40 @@ def tanimoto():
             script,div = components(p)
             error=''
         else:
-            error=f'{csid} was not found in the database, try a different CSID#'
+            error=f'<h5>{csid} was not found in the database, try a different CSID#</h5>'
             script,div,csid,cname=['']*4
     else:
         script,div,csid,cname,error = ['']*5
     return render_template('dplytanihm.html',script=script,div=div,csid=csid,cname=cname,error=error) 
+
+@app.route('/updateTani/')
+def updateTani():
+    csid=request.args.get('csid',type=int)
+    stmt=db.session.query(db.exists().where(Chemcmpd.csid==csid)).scalar()
+    if stmt:
+        csid_lst = dfm_fps.index.tolist()
+        tanimotoLst = [dfm_fps.loc[csid].item() | dfm_fps.loc[int(cs)].item() for cs in csid_lst]
+        cname = db.session.query(Chemcmpd.cname).filter(Chemcmpd.csid==csid).scalar()
+        p = genHeatMapTanimoto(tanimotoLst,csid,csid_lst)
+        script,div = components(p)
+    else:
+        div=f'<h5>{csid} was not found in the database!</h5>'
+        script=''
+    return jsonify(html_content=render_template('updateTanihm.html',div=div,script=script),csid=csid)
+
+@app.route('/networkx/',methods=['GET','POST'])
+def dplynetx():
+    if request.method=='POST':
+        csid = str(request.form['csid'])
+        stmt=db.session.query(db.exists().where(Chemcmpd.csid==csid)).scalar()
+        if stmt:
+            src_a, src_b = prosDf(csid,dfm_main)
+            p = plotNetXBokeh(src_a,src_b,csid) 
+            script,div = components(p)
+            error=''
+        else:
+            error=f'{csid} was not found in the database, try a different CSID#'
+            script,div,csid,cname=['']*4
+    else:
+        script,div,csid,error = ['']*4
+    return render_template('dplynetx.html',script=script,div=div,csid=csid,error=error) 

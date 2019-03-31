@@ -64,9 +64,9 @@
    {% for page in output.iter_pages(left_current=3,right_current=7) %}
          {% if page %} 
             {% if output.page == page %}
-               <a class="btn btn-info"href="{{url_for('datatable',page=page) }}">{{ page }}</a>
+               <a class="btn btn-info" href="{{url_for('datatable',page=page) }}">{{ page }}</a>
          {% else %}
-               <a class="btn btn-outline-info"href="{{url_for('datatable',page=page) }}">{{ page }}</a>
+               <a style="border-style: solid;padding : 4px;border-color :#5bc0de" class="btn btn-outline-info" href="{{url_for('datatable',page=page) }}">{{ page }}</a>
           {%endif %}
           {% else %}
          <span><strong> ... </strong></span>

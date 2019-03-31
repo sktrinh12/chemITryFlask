@@ -2,31 +2,72 @@
 {% block body %} 
 
 
-<h3>Display Chemical Structure based on ChemSpider ID</h3>
+<div class="panel panel-default">
+	<div class="panel-heading"><h4>Display Chemical Structure & Analysis based on ChemSpider ID</h4></div>
+		<div class="panel-body">
+		<div class="containerdply">
 
-<form id="form-dplytanihm" method='post' action='{{ url_for('dplystruc') }}'>
-<p><br><strong>ChemSpider ID:</strong>{{csid|safe}}</p>
-   <input type='text' name='csid' placeholder="Enter CSID #" required>
-   <input class="submit-button" type ='submit'>
-</form>
+			<div class="columnContent">
 
-<p id="nfo"></p> <!--for jquery shows validation of csid # -->
+				<form id="form-dplystruc" method='post' action='{{ url_for('dplystruc') }}'>
+				<label for='csid' id='lbl_csid'><strong>ChemSpider ID: </strong>{{csid|safe}}</label>
+				   <input type='text' name='csid' id='csid' placeholder="Enter CSID #" required>
+				   <input class="submit-button" type ='submit' id="submit-btn-dplystruc">
+				</form>
+				<!--p id="nfo"></p> <for jquery shows validation of csid # -->
 
-<div class="svg-with-text"><span> {{svg|safe}}</span>	
-<br>
-<p><font size="5">{{cname}}</font></p>
-   <script>
-   $( "form" ).submit(function( event ) {
-     if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
-       $( "p#nfo" ).text( "Validated..." ).show();
-       return;
-     }
-    
-     $( "p#nfo" ).text( "Not valid!" ).show().fadeOut( 1000 );
-     event.preventDefault();
-   });
-   </script>
+				<div class="panel panel-default" id="panelContentMain">
+					<div class="panel-heading" id="panelHeadingInfo"> <font size="4">
+						{% if cname and csid %}
+						<b>Compound Name: </b>{{cname}} | <b>ChemSpider ID:</b> {{csid}}
+						</font></div>
+					<div class="svg-ctr" id="panelContentFigure"> {{svg|safe}} </div>
+						{%else%}
+						{{svg|safe}}
+						</div>
+						{%endif%}
 
+
+				</div>
+			</div>	
+			
+			<div class="columnListGrp">
+				<div class="list-group">
+				<a href="#" class="list-group-item active" id="dplymolec">
+					<h4 class="list-group-item-heading">Chemical Structure</h4>
+				<p class="list-group-item-text">Display chemical structure based on the ChemSpider #ID</p>
+				</a>
+				</div>
+				
+				<div class="list-group">
+				<a class="list-group-item" id="tanimoto">
+				<h4 class="list-group-item-heading">Tanimoto coefficient</h5>
+				<p class="list-group-item-text">Displays a Tanimoto similarity heatmap against all the compounds from the database</p>
+				</a>
+				</div>
+			
+				<div class="list-group">
+				<a class="list-group-item">
+				<h4 class="list-group-item-heading">NetworkX</h4>
+				<p class="list-group-item-text">Displays a NetworkX graph based on Euclidean distance metric against all compounds from the database</p>
+				</a>
+				</div>
+			</div>
+		</div>
+	</div>
 </div>
-
+		   <!--script>
+		   $( "form" ).submit(function( event ) {
+		     if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
+		       $( "p#nfo" ).text( "loading..." ).show();
+		       return;
+		     }
+		    
+		     $( "p#nfo" ).text( "Not valid!" ).show().fadeOut( 1000 );
+		     event.preventDefault();
+		   });
+		   </script-->
+		</div>
+	</div>
+</div>
 {% endblock %}

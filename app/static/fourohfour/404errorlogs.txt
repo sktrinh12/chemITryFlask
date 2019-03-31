@@ -252,3 +252,26 @@
 /barplot/update_barplot
 /barplot/update_barplot
 /barplot/update_barplot
+/dplynetx/
+/barplot/15
+/barplot/{{ url_for('update_barplot') }}
+/barplot/{{ url_for('update_barplot') }}
+/barplot/{{ url_for('update_barplot') }}
+/barplot/update_barplot
+/barplot/update_barplot
+/barplot/update_barplot
+/barplot/update_barplot
+/barplot/update_barplot/
+/barplot/update_barplot/
+/barplot/update
+/barplot/update_barplot/
+/barplot/update_barplot/
+/barplot/update_barplot/
+/barplot/barplot/
+/barplot/update_barplot/
+/barplot/update_barplot/
+/smrtsrch/
+/barplot/{{ url_for('update_barplot') }}
+/test4/
+/updateDplyStrc/
+/test/

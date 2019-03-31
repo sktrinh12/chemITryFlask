@@ -1,8 +1,5 @@
 {% extends "header.html" %}
 {% block body %} 
-
-<link href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" rel="stylesheet" type="text/css">
-
 <h3>Display Tanimoto Similarity Heatmap</h3>
 
 <form id="form-dplytani" method='post' action='{{ url_for('tanimoto') }}'>
@@ -21,7 +18,7 @@
    <script>
    $( "form" ).submit(function( event ) {
      if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
-       $( "p#nfo" ).text( "Validated..." ).show();
+       $( "p#nfo" ).text( "loading..." ).show();
        return;
      }
     
@@ -31,6 +28,4 @@
    </script>
 
 </div>
-<script src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.js"></script>    
-
 {% endblock %}

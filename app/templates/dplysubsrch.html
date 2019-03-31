@@ -1,76 +1,33 @@
 {% extends 'header.html' %}
 {% block body %}
-{% set lengthLst = svgoutput|length  %}
-<h3>Enter SMARTS string to query the database</h3>
-<div class="border-container">
-<form id="form-subsrch" method='post' action="{{ url_for('smrtsrch') }}" enctype="multipart/form-data">
-   <p>
-      <strong>SMARTS string: </strong>{{query}}
-   </p>
-   <!--input type='text' name='smrtsrch' placeholder='c:c:c:c:c:c=c' required-->
-   <textarea type='text' name='smrtsrch'  cols='71',rows='7' required>cccccc</textarea>
-   <br>
-   <input id='form-text' class="submit-button" type ='submit'>
-</form>
-</div>   
-{% if error %}
-<p> {{error}} </p>
-{% endif %}
-<div id="loading-circle"></div>   
-<div id="lock-modal"></div>
 
-<br>
-<div id='table-results'>
-   <h3 id="found-results"> Found {{lengthLst}} matches! </h3> 
-   <table class="subsrchRes"> 
-      {% if lengthLst <= 5 %}
-         <tr>
-               {% for i in range(lengthLst) %}
-                  <td class='svg-with-text'>{{svgoutput[i][1]|safe}}</td>
-               {% endfor %}
-         </tr> 
-         <tr>      
-               {% for i in range(lengthLst) %}   
-                  <td class='svg-with-text'><span>(<strong>{{i}}</strong>) | {{svgoutput[i][0]}}</span></td>
-               {% endfor %}
-         </tr>
 
-      {% else %}
-         
-         {% if lengthLst % 5 != 0 %}
-            {% set insertLast = True %}  
-         {% endif %} 
-         
-         {% set tbloop = (lengthLst/5)|round(0,'floor')|int %}
-         {% for j in range(1,(tbloop+1)) %}
-            {% set count = (5*j) %}
-            <tr>
-                  {% for i in range((count-5)+1,count+1) %}
-                     <td class='svg-with-text'>{{svgoutput[i-1][1]|safe}}</td>
-                  {% endfor %}
-            </tr> 
-            <tr>      
-                  {% for i in range((count-5)+1,count+1) %}   
-                     <td class='svg-with-text'><span>(<strong>{{i}}</strong>) | {{svgoutput[i-1][0]}}</span></td>
-                  {% endfor %}
-            </tr>
-         {% endfor %}
-      {% endif %}
-      {% if insertLast %}
-         {% set remainder = (lengthLst - (tbloop*5))|int %} {# the total amt of elements minus the amt already processed #}
-         
-            <tr>
-            {% for i in (range(1,remainder+1))|reverse %} 
-                     <td class='svg-with-text'>{{svgoutput[(lengthLst-i)][1]|safe}}</td>
-            {% endfor %}
-            </tr>
-            <tr>
-            {% for i in (range(1,remainder+1))|reverse %} 
-                     <td class='svg-with-text'><span>(<strong>{{lengthLst+1-i}}</strong>) | {{svgoutput[(lengthLst-i)][0]}}</span></td>
-            {% endfor %}
-            </tr>
-      {% endif %}
-   </table>
+<div class="panel panel-default">
+	<div class="panel-heading"><h4>Enter SMARTS string to query the database</h4></div>
+		<div class="panel-body">
+
+			<form id="form-subsrch">  
+			<div id="smrtsrch_input_padding">
+				<label for="smrtsrch_input"><strong id="label_smrtstr"></strong></label>
+			</div>
+			<div id="smrtsrch_input_padding">
+				<input type="text" class="form-control" id="smrtsrch_input" placeholder="[OH]c1ccccc1" required>
+			</div>
+			<div id="smrtsrch_input_padding">
+			<input class="submit-button" type="submit">
+			</div>
+			</form>
+
+			<div id="loading-circle"></div>   
+			<div id="lock-modal"></div>
+
+			<div class="panel panel-default" id="containTable">
+				<div class="panel-heading" id="tablePanelHead"><h4 id="found-results"></h4></div>
+					<div class="panel-body">
+						<div id="table-results"></div>
+				</div>
+		</div>
+	</div>
 </div>
 
 {% endblock %}
