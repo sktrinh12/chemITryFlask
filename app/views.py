@@ -10,7 +10,7 @@ from app.models import RegistrationForm,SendEmailForm
 from flask_paginate import Pagination, get_page_args
 from bokeh.embed import components
 from bokeh.models.sources import AjaxDataSource
-from app.funcs import genHeatMapTanimoto,pd,np,pybel,Chemcmpd,db,dplyStruc_ob,smrtSrch,genBarPlot,prosDf,plotNetXBokeh,genUnitCircle
+from app.funcs import genHeatMapTanimoto,pd,np,pybel,Chemcmpd,db,dplyStruc_ob,smrtSrch,genBarPlot,prosDf,plotNetXBokeh,genUnitCircle,genPCAdata
 from functools import wraps
 #mail = Mail(app)
 colnames=[ 'csid', 'sname', 'cname', 'stdinchi',  'mform','amass' ,'smi', 'logp', 'hbd', 'hba',  'numrotbonds',  'lrfive',  'psa',  'enthalpy',  'density',  'bp',  'arings',  'numN',  'numO',  'sssr',  'stereoctr',  'isnp',  'veberv' ] 
@@ -276,7 +276,7 @@ def updateTani():
     else:
         div=f'<h5>{csid} was not found in the database!</h5>'
         script=''
-    return jsonify(html_content=render_template('updateTanihm.html',div=div,script=script),csid=csid)
+    return jsonify(html_content=render_template('updateFigure.html',div=div,script=script),csid=csid)
 
 @app.route('/networkx/',methods=['GET','POST'])
 def dplynetx():
@@ -294,3 +294,32 @@ def dplynetx():
     else:
         script,div,csid,error = ['']*4
     return render_template('dplynetx.html',script=script,div=div,csid=csid,error=error) 
+
+@app.route('/updateNetx/')
+def updateNetx():
+    csid = request.args.get('csid') 
+    stmt=db.session.query(db.exists().where(Chemcmpd.csid==csid)).scalar()
+    if stmt:
+        src_a, src_b = prosDf(csid,dfm_main)
+        p = plotNetXBokeh(src_a,src_b,csid) 
+        script,div = components(p)
+    else:
+        div=f'<h5>{csid} was not found in the database!</h5>'
+        script=''
+    return jsonify(html_content=render_template('updateFigure.html',div=div,script=script),csid=csid)
+
+@app.route('/pca/')
+def pca():
+    # scalar_type = request.args.get('scalarType')
+    scalar_type = 'norm'
+    p =  genPCAdata(scalar_type,dfm_main)
+    script,div = components(p)
+    return render_template('pca.html',script=script,div=div)
+
+@app.route('/exploredata/')
+def exploredata():
+    return render_template('exploredata.html')
+
+@app.route('/som/')
+def som():
+    return render_template('som.html')

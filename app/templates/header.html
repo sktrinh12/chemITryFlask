@@ -8,9 +8,10 @@
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
   <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.3.1/jquery.min.js"></script>
+  <script src="https://ajax.googleapis.com/ajax/libs/jqueryui/1.12.1/jquery-ui.min.js"></script>
   <script src="https://maxcdn.bootstrapcdn.com/bootstrap/3.4.0/js/bootstrap.min.js"></script> 
-  <link href="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.css" rel="stylesheet" type="text/css">
-  <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.0.4.min.js"></script>    
+  <link href="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.css" rel="stylesheet" type="text/css">
+  <script src="https://cdn.pydata.org/bokeh/release/bokeh-1.1.0.min.js"></script>    
   <script type="text/javascript" src="/static/jscripts.js" async></script>
 </head>
 
@@ -41,7 +42,7 @@
    {{ nav_link('dplystruc', 'ChemSpiderID Search') }}
    {{ nav_link('smrtsrch', 'Substructure Search') }}
    {{ nav_link('datatable', 'Compound Database') }}  
-   {{ nav_link('jinjaman', 'ChemSpider WebScrape') }}
+   {{ nav_link('barplot', 'Explore Database') }}
 </ul>
 
 <body>
@@ -63,6 +64,10 @@
     {% block body %}{% endblock %}
    
     </div>
+    
+<div id="loading-circle"></div>   
+<div id="lock-modal"></div>
+
 </body>
 
 </html>

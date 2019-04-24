@@ -1,0 +1,24 @@
+{%extends "header.html" %}
+{% block body %} 
+
+
+<div id='xplrDataTabs'>
+{% from "macros_navbar.html" import nav_link with context %}
+<ul class="nav nav-tabs" role="tablist">
+   {{ nav_link('barplot', 'MW Barplot') }}
+   {{ nav_link('pca', 'PCA') }}  
+   {{ nav_link('som', 'SOM') }}
+</ul>
+</div>
+
+
+
+
+{%block subcontent %}
+{%endblock %}
+
+
+
+
+
+{% endblock %}

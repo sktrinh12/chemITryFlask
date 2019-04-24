@@ -1,7 +1,16 @@
+$.ajaxSetup({
+	beforeSend: function(){
+	   $("#lock-modal").css('display','block');
+	   $("#loading-circle").css('display','block');
+		 },
+	complete: function(){
+	   $("#lock-modal").css("display","none");
+	   $("#loading-circle").css("display","none");   
+		 }
+	 });
+
 $(document).ready(function() {
 
-  const lockModal = $("#lock-modal");
-  const loadingCircle = $("#loading-circle");
   const form = $("#form-subsrch");
   const tablePanel = $("#containTable");
   var foundResult = $('#found-results');
@@ -10,16 +19,11 @@ $(document).ready(function() {
   form.on('submit',function(e) 
 	{	
 	e.preventDefault();
-	lockModal.css('display','block');
-	loadingCircle.css('display','block');
 	$.ajax({
 		url:'/dplysmrtsrch/',
 		data:{smrtstr: $("#smrtsrch_input").val()},  
 		dataType:'json',
 		success:function(reply) {
-
-			lockModal.css("display","none");
-			loadingCircle.css("display","none");   
 			lblSmrtStr.text(`SMARTS string query: ${reply.query}`);
 			foundResult.text(`Substructure Search Results - Found ${reply.lengthSrchResult} matches!`);
 			tablePanel.show();
@@ -54,7 +58,7 @@ $(document).ready(function() {
 		return false;
  	}); 
 
-//DISPLAY TANIMOTO HEATMAP
+//DISPLAY TANIMOTO HEATMAP OR NETWORKX GRAPH OR CHEMICAL STRUCTURE UPON CLICK
 
 	function AJAXcallPaneLink(IDelem,url) 
 		{
@@ -70,7 +74,6 @@ $(document).ready(function() {
 				var clone = $("div#panelContentFigure").clone(true);
 				var figure = $(data.html_content);
 				clone.html(figure);
-console.log(clone);
 				$('div#panelContentFigure').replaceWith(clone).slideUp(250);
 				}
 			});
@@ -79,16 +82,18 @@ console.log(clone);
 	if($('#panelHeadingInfo').text().length >34){ //there is a csid & cname in the panel header
 		alink_tani = $('a#tanimoto');
 		alink_molec = $('a#dplymolec');
-		alink_tani.attr('href','#');
-		
+		alink_tani.attr('href','#'); //make clickable
+		alink_netx = $('a#netx');
+		alink_netx.attr('href','#');
 		AJAXcallPaneLink(alink_tani,'/updateTani/');
-		AJAXcallPaneLink(alink_molec,'/updateDplyStrc/');
+		AJAXcallPaneLink(alink_molec,'/updateDplyStrc/'); //if click on any of these a tag links, will make ajax call to update figure within the div
+		AJAXcallPaneLink(alink_netx,'/updateNetx/');
 }
 
 //HIDE THE DIV IF THERE IS NO CSID ENTERED	
 if ($('#panelContentMain').length){
   if (parseInt($('#panelContentMain').html().length)<200   ) { 
-	// console.log($('#panelContentMain').html().length); 
+	console.log($('#panelContentMain').html().length); 
 	if($('div#panelHeadingInfo').text().trim().includes('does not exist')){
 		$('#panelContentMain').delay(300).show();
 	} else{
@@ -97,23 +102,34 @@ if ($('#panelContentMain').length){
 	}
 }
 else {
-	// console.log($('#panelContentMain').html().length);
+	console.log($('#panelContentMain').html().length);
 	$('#panelContentMain').delay(300).show(); 
 }
 };
-
-$("form-dplystruc").submit(function( event ) {
-		     if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
-		       $( "div#panelContentFigure" ).text( "loading..." ).show();
-		       return;
-		     }
-		     $("div#panelContentFigure" ).text( "Not valid!" ).show().fadeOut( 1000 );
-		     event.preventDefault();
-		   });
-
-});
+//SHOW LOADING OR INVALID TEXT DURING FORM SUBMISSION
+$("#form-dplystruc").submit(function( event ) {
+	if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
+	$( "div#panelContentFigure" ).text( "loading..." ).show();
+       return;
+	}
+	$("div#panelContentFigure" ).text( "Not valid!" ).show().fadeOut( 1000 );
+	event.preventDefault();
+	});
 
 
+
+}); 
+
+
+	//if ($('#xplrDataTabs').length && !$('#xplrDataTabs ~ .panel.panel-default .panel-body').length) {
+	////window.location = '/barplot/';
+	//console.log($('#xplrDataTabs ~ .panel.panel-default .panel-body').length);
+	//}
+
+
+// $("#exploredata").ready(function(){
+// 	$('a[href="/barplot/"]').click();
+// 	});
 
 
 //FOR SUBSTRUCTURE SEARCH RESULTS (ZOOM IN ON STRUCTURES)

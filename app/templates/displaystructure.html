@@ -9,13 +9,11 @@
 
 			<div class="columnContent">
 
-				<form id="form-dplystruc" method='post' action='{{ url_for('dplystruc') }}'>
+				<form id="form-dplystruc" method='post'>
 				<label for='csid' id='lbl_csid'><strong>ChemSpider ID: </strong>{{csid|safe}}</label>
 				   <input type='text' name='csid' id='csid' placeholder="Enter CSID #" required>
 				   <input class="submit-button" type ='submit' id="submit-btn-dplystruc">
 				</form>
-				<!--p id="nfo"></p> <for jquery shows validation of csid # -->
-
 				<div class="panel panel-default" id="panelContentMain">
 					<div class="panel-heading" id="panelHeadingInfo"> <font size="4">
 						{% if cname and csid %}
@@ -47,7 +45,7 @@
 				</div>
 			
 				<div class="list-group">
-				<a class="list-group-item">
+				<a class="list-group-item" id="netx">
 				<h4 class="list-group-item-heading">NetworkX</h4>
 				<p class="list-group-item-text">Displays a NetworkX graph based on Euclidean distance metric against all compounds from the database</p>
 				</a>
@@ -56,18 +54,8 @@
 		</div>
 	</div>
 </div>
-		   <!--script>
-		   $( "form" ).submit(function( event ) {
-		     if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
-		       $( "p#nfo" ).text( "loading..." ).show();
-		       return;
-		     }
-		    
-		     $( "p#nfo" ).text( "Not valid!" ).show().fadeOut( 1000 );
-		     event.preventDefault();
-		   });
-		   </script-->
 		</div>
 	</div>
 </div>
+
 {% endblock %}

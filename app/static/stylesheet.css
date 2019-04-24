@@ -38,8 +38,8 @@ td #topsvg {
 .modal-content {
   margin: auto;
   display: block;
-  width: 90%;
-  max-width: 700px;
+  width: 98%;
+  max-width: 850px;
 }
 
 /* Caption of Modal Image (Image Text) - Same Width as the Image */
@@ -48,12 +48,18 @@ td #topsvg {
   display: block;
   width: 80%;
   max-width: 700px;
-  text-align: center;
+  text-align: left;
   color: #ffffff;
   padding: 10px 0;
   height: 150px;
   font-size:20px;
   font-weight:bold;
+  vertical-align:text-top;
+  white-space: -webkit-pre-wrap;
+  white-space: -moz-pre-wrap !important;
+  white-space: pre-wrap;
+  word-break: break-all;
+  white-space: normal;
 }
 
 /* Add Animation - Zoom in the Modal */
@@ -151,6 +157,11 @@ td.svg-ctr{ /*svg image alignment */
 
 td.txt-ctr {/* txt for compd name in table */
    vertical-align:text-top;
+   white-space: -webkit-pre-wrap;
+   white-space: -moz-pre-wrap !important;
+   white-space: pre-wrap;
+   word-break: break-all;
+   white-space: normal;
 }
 #containTable {
 	width:auto;
@@ -210,7 +221,7 @@ table.subsrchRes tr td:last-child{/*the right of last cell in every row */
    background-color:#DBDAE8;
  }/* Remove the navbar's default margin-bottom and rounded borders */
 
-.navbar-brand {
+ .navbar-brand {
      font-size: 50px;
      letter-spacing:10px;
 }
@@ -252,9 +263,29 @@ tr:hover {
   padding:5px;
 }
 
+#form-barplot {
+  /*width:22%;*/
+  display:flex;
+  align-items:flex-end;
+}
+
+#updatebarplot {
+  margin-left:5px;
+}
+
+#barplotBinNum {
+  height:24px;
+}
+
 #form-dplystruc { /*form styles*/
   width: 650px;
 }
+
+input#updatebarplot {
+  position:relative;
+  right:2;
+}
+
 
 #lock-modal {
   display:none;

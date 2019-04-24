@@ -5,8 +5,9 @@ from functools import reduce
 import pandas as pd
 import numpy as np
 from bokeh.plotting import figure
-from bokeh.models import HoverTool, ColumnDataSource,MultiLine, Circle
+from bokeh.models import HoverTool, ColumnDataSource,MultiLine, Circle, Label
 from bokeh.models.graphs import from_networkx
+from sklearn.preprocessing import StandardScaler,Normalizer,MinMaxScaler
 import pybel
 from app.models import Chemcmpd
 from app import db
@@ -186,7 +187,7 @@ def smrtSrch(query,dfm):
         print('An error occured')
 
 def convertDFtoNumFeatures(dfm):
-    dfm_numFeatures = dfm[['csid','cname','amass','logp','hbd','hba','numrotbonds','enthalpy','density','bp','arings','numN','numO','sssr','stereoctr','isnp','veberv']]
+    dfm_numFeatures = dfm[['csid','cname','amass','logp','hbd','hba','numrotbonds','psa','enthalpy','density','bp','arings','numN','numO','sssr','stereoctr','isnp','veberv']]
     dfm_numFeatures.loc[:,'csid'] =dfm_numFeatures['csid'].apply(lambda x : str(x))
     dfm_numFeatures = dfm_numFeatures.set_index('csid')
     clipStr = lambda x: round(float(x.split('±')[0]),1) if x else np.nan
@@ -282,7 +283,7 @@ def genNetXforBokeh(dfm,q_csid,minThreshold=0.25):
     for idx,val in zip(lsSeries.index,lsSeries): #re-define those weight values to a mapping represented by linespace from 4-1 
         dfm_proc.loc[idx,'weights'] = val #values for above the threshold
         dfm_proc.loc[idx,'alpha'] = 1
-        dfm_proc.loc[idx,'lcolour'] = '#1B3B6F' 
+        dfm_proc.loc[idx,'lcolour'] = '#1B3B6F' #line colour for closest points to middle 
     posixy={i:"" for i in dfm_proc['csid']}
     n=len(unitCir)
     for i,cs in enumerate(dfm_proc['csid']): 
@@ -302,6 +303,14 @@ def genNetXforBokeh(dfm,q_csid,minThreshold=0.25):
     dfm_proc['size'] = [10]*nrow #for node size
     dfm_proc['cname'] = cnames #put back names in final dataframe; had to take out for euclidean distance calcs
     return (dfm_proc.reindex(sorted(dfm_proc.columns), axis=1),q_cname)
+
+def customHoverTool(dict_kv,word_width):
+    hoverstring = f'<div style="word-wrap: break-word; width: {word_width}px;">'
+    for k,v in dict_kv.items():
+        hoverstring = hoverstring + f'<p><span style="font-size: 5; font-weight: bold;">{k}: </span>@{v}<p>\n'
+    hoverstring + "</div>" 
+    node_hover_tool = HoverTool(names=['showhover'], tooltips=hoverstring)
+    return node_hover_tool
 
 def prosDf(q_csid,dfm):
     '''process the dataframe. first convert to numerical based dfm, then generate a new columns for plotting, 
@@ -379,7 +388,8 @@ def plotNetXBokeh(src_abv,src_belw,q_csid):
     max_XNodeVal = max(src_belw['xs_node'])
     max_YNodeVal = max(src_belw['ys_node'])
     buffer = 0.1
-    plot = figure(title=f"CSID {q_csid} network", sizing_mode='scale_width',x_range=(-max_XNodeVal-buffer, max_XNodeVal+buffer),y_range=(-max_YNodeVal-buffer, max_YNodeVal+buffer))
+    plot = figure(sizing_mode='scale_width',x_range=(-max_XNodeVal-buffer, max_XNodeVal+buffer),y_range=(-max_YNodeVal-buffer, max_YNodeVal+buffer))
+    plot.outline_line_color = None
     source_belw = ColumnDataSource(src_belw)
     source_abv = ColumnDataSource(src_abv)
     glyph = MultiLine(xs="xs_line", ys="ys_line", line_color='lcolour', line_width='weight',line_alpha='alpha')
@@ -387,18 +397,75 @@ def plotNetXBokeh(src_abv,src_belw,q_csid):
     plot.add_glyph(source_abv, glyph) #add the above threshold lines last so it overlays the below lines
     plot.circle('xs_node', 'ys_node', source=source_belw, size='size', color='colour',line_color='#020c15',line_width=0.5,name='showhover')
     plot.circle('xs_node', 'ys_node', source=source_abv, size='size', color='colour',line_color='#020c15',line_width=0.5,name='showhover')
-    node_hover_tool = hover = HoverTool(names=['showhover'], tooltips="""
-        <div style="word-wrap: break-word; width: 400px;">
-            <p><span style="font-size: 5; font-weight: bold;">CSID: @csid</span><p>
-            <p><span style="font-size: 5; font-weight: bold;">Name: @cname</span><p>
-            <p><span style="font-size: 5; font-weight: bold;">EucliDist: @euclidist</span><p>
-        </div>
-              """)
+    dictHoverLabels = {'CSID':'csid','Name':'cname','EucliDist':'euclidist'}
+    node_hover_tool = customHoverTool(dictHoverLabels,400)
+    # node_hover_tool = hover = HoverTool(names=['showhover'], tooltips="""
+    #     <div style="word-wrap: break-word; width: 400px;">
+    #         <p><span style="font-size: 5; font-weight: bold;">CSID: @csid</span><p>
+    #         <p><span style="font-size: 5; font-weight: bold;">Name: @cname</span><p>
+    #         <p><span style="font-size: 5; font-weight: bold;">EucliDist: @euclidist</span><p>
+    #     </div>
+    #           """)
     plot.add_tools(node_hover_tool)
     plot.toolbar.logo = None
     plot.min_border = 0
     plot.axis.visible = False
     plot.toolbar.autohide = True 
     plot.grid.visible = False
+    return plot
+
+def genPCAdata(scaler_type,dfm):
+    dfnf = convertDFtoNumFeatures(dfm)
+    dfnf.reset_index(inplace=True) #remove csid index for numerical feaetures
+    cnames = dfnf.cname #remove cnames for numerical features
+    csids = dfnf.csid
+    del dfnf['cname']
+    del dfnf['csid']
+    if scaler_type == 'std':
+        df = StandardScaler().fit_transform(dfnf) # Gaussian distribution and differing means and standard deviations to a standard Gaussian distribution with a mean of 0 and a standard deviation of 1.
+    elif scaler_type == 'norm':
+        df = Normalizer().fit_transform(dfnf) #used if lots of zeros, normalises across rows; all sum to 1
+    else:
+        df = MinMaxScaler().fit_transform(dfnf)
+    features = df.T
+    cov_matrix = np.cov(features)
+    eigval,eigvec = np.linalg.eig(cov_matrix)
+    proj_pc1 = df @ eigvec.T[0] #matrix multiplication of the tranpose of the eigenvector and dfm
+    proj_pc2 = df @ eigvec.T[1] #first two PCs cover most of the variability
+    pcadf = pd.DataFrame({'PC1':proj_pc1,
+                      'PC2':proj_pc2,
+                      'csid':csids,
+                      'cname':cnames,
+                      'np':dfnf.isnp.apply(lambda x: 'Natural Product' if x==1 else 'Not Natural Product'),
+                      'colour':dfnf.isnp.apply(lambda x: '#065A82' if x==1 else '#CAE9FF')})    
+    plot = figure(sizing_mode='scale_width')
+    plot.xaxis.axis_label = 'PC1'
+    plot.yaxis.axis_label = 'PC2'
+    pcadf_np = pcadf[pcadf['np']=='Natural Product']
+    pcadf_notnp = pcadf[pcadf['np']=='Not Natural Product']
+    plot.circle('PC1','PC2',source=ColumnDataSource(pcadf_notnp),name='showhover',alpha=0.9,color='colour',line_color='black',line_width=0.6,size=6,legend='np')
+    plot.circle('PC1','PC2',source=ColumnDataSource(pcadf_np),name='showhover',alpha=0.9,color='colour',line_color='black',line_width=0.6,size=6,legend='np')
+    dictHoverLabels = {'CSID':'csid','Name':'cname','NP':'np'}
+    node_hover_tool = customHoverTool(dictHoverLabels,250)
+    plot.add_tools(node_hover_tool)
+    plot.legend.click_policy="hide" #toggle hide data points upon click of legend entry
+    plot.toolbar.logo = None
+    plot.min_border = 0
+    plot.toolbar.autohide = True 
+    plot.grid.visible = False
+    plot.xaxis.major_tick_line_color = None  # turn off x-axis major ticks
+    plot.xaxis.minor_tick_line_color = None  # turn off x-axis minor ticks
+    plot.yaxis.major_tick_line_color = None  # turn off y-axis major ticks
+    plot.yaxis.minor_tick_line_color = None  # turn off y-axis minor ticks
+    plot.xaxis.major_label_text_font_size = '0pt'  # preferred method for removing tick labels
+    plot.yaxis.major_label_text_font_size = '0pt'
+    plot.outline_line_color = None
+    labeltxt = Label(x=-.95, y=0.094, 
+    text=f'{pcadf_np.shape[0]} / {pcadf_notnp.shape[0]} NP pct ({round((pcadf_np.shape[0]/pcadf_notnp.shape[0]),2)*100}%)', 
+    render_mode='css',
+    border_line_color='black', 
+    border_line_alpha=0.7,
+    background_fill_alpha=0.7)
+    plot.add_layout(labeltxt)
     return plot
 
