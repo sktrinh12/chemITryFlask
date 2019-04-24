@@ -93,4 +93,4 @@ Werkzeug==0.15.2
 widgetsnbextension==3.4.2
 WTForms==2.2.1 
 gunicorn==19.9.0
-openbabel==2.3.0
+openbabel==2.4.1
