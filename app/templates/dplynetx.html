@@ -1,0 +1,33 @@
+{%extends "header.html" %}
+{% block body %} 
+<h3>Display networkX plot of chemspider ID</h3>
+
+<form id="form-dplynetx" method='post' action='{{ url_for('dplynetx') }}'>
+<p><br><strong>ChemSpider ID:</strong>{{csid|safe}}</p>
+   <input type='text' name='csid' placeholder="Enter CSID #" required>
+   <input class="submit-button" type ='submit'>
+</form>
+
+<p id="nfo"></p> <!--for jquery shows validation of csid # -->
+
+<p><strong> {{ error}}</strong> </p>
+<br>
+<div class="svg-with-text"><span> {{div|safe}} {{script|safe}}</span>	
+	<p><font size="3">{{cname|safe}}</p>
+	<p>{{csid|safe}}</font></p>
+
+<div class="svg-with-text"><span> {{svg|safe}}</span>	
+   <script>
+   $( "form" ).submit(function( event ) {
+     if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
+       $( "p#nfo" ).text( "loading..." ).show();
+       return;
+     }
+    
+     $( "p#nfo" ).text( "Not valid!" ).show().fadeOut( 1000 );
+     event.preventDefault();
+   });
+   </script>
+
+</div>
+{% endblock %}

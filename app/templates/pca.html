@@ -1,0 +1,18 @@
+{% extends "exploredata.html" %}
+{% block subcontent%}
+
+    <div class="panel panel-default">
+	    <div class="panel-heading"><h4>Principal Components Analysis<h4></div>
+		<div class="panel-body">
+
+			{{div|safe}}
+			{{script|safe}}
+		</div>
+    </div>
+<script>
+
+$('#navtabs > li + li + li + li').addClass('active'); //force 'Explore Database' tab to be active
+
+</script>
+
+{% endblock %}

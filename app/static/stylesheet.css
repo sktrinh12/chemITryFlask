@@ -1,0 +1,325 @@
+@charset "UTF-8";
+
+div #panelContentMain {
+	margin-top:20px;
+}
+
+/* Style the Image Used to Trigger the Modal */
+td #topsvg {
+  cursor: pointer;
+  transition: 0.3s;
+  display:block;
+  margin: 0 auto;
+  text-align:center;
+  width:auto;
+}
+
+#td topsvg:hover {opacity: 0.7;}
+
+/* The Modal (background) */
+#svgmodal {
+  display: none; /* Hidden by default */
+  position: fixed; /* Stay in place */
+  z-index: 1; /* Sit on top */
+  padding-top: 100px; /* Location of the box */
+  left: 0;
+  top: 0;
+  width: 100%; /* Full width */
+  height: 100%; /* Full height */
+  overflow: auto; /* Enable scroll if needed */
+  background-color: rgb(0,0,0); /* Fallback color */
+  background-color: rgba(0,0,0,0.5); /* Black w/ opacity */
+  transition: all 0.5s cubic-bezier(0.59, -0.17, 0.3, 1.67);
+  align-items:center;
+  text-align:center;
+}
+
+/* Modal Content (Image) */
+.modal-content {
+  margin: auto;
+  display: block;
+  width: 98%;
+  max-width: 850px;
+}
+
+/* Caption of Modal Image (Image Text) - Same Width as the Image */
+#caption {
+  margin: auto;
+  display: block;
+  width: 80%;
+  max-width: 700px;
+  text-align: left;
+  color: #ffffff;
+  padding: 10px 0;
+  height: 150px;
+  font-size:20px;
+  font-weight:bold;
+  vertical-align:text-top;
+  white-space: -webkit-pre-wrap;
+  white-space: -moz-pre-wrap !important;
+  white-space: pre-wrap;
+  word-break: break-all;
+  white-space: normal;
+}
+
+/* Add Animation - Zoom in the Modal */
+.modal-content, #caption { 
+  animation-name: zoom;
+  animation-duration: 0.6s;
+}
+
+@keyframes zoom {
+  from {transform:scale(0)} 
+  to {transform:scale(1)}
+}
+
+/* The Close Button */
+.close {
+  position: absolute;
+  top: 15px;
+  right: 35px;
+  color: #f1f1f1;
+  font-size: 50px;
+  font-weight: bold;
+  transition: 0.3s;
+}
+
+.close:hover,
+.close:focus {
+  color: #bbb;
+  text-decoration: none;
+  cursor: pointer;
+}
+
+/* 100% Image Width on Smaller Screens */
+@media only screen and (max-width: 700px){
+  .modal-content {
+    width: 100%;
+  }
+}
+
+.barplotPanel {
+	float:left;
+	width:60%;
+	padding:15px;
+}
+
+.columnContent{/* dplystruc content on main page*/
+float: right;
+  width: 100%;
+  padding:15px;
+}
+
+.columnListGrp {/* panel buttons on main page*/
+  float: left;
+  width: 200px;
+  margin-left: -200px;
+  padding:15px;
+}
+
+.cleared {
+	clear:both;
+}
+
+.containerdply{
+	margin-left: 200px;
+}
+
+/*  for smart search form container (old code)
+.border-container {
+  border-radius: 10px;
+  border-style: solid;
+  border-width: 1px;  
+  margin-top: 5px;
+  width:502px;
+  text-align:left;   
+  border-color: rgba(0,0,255,0.5); 
+}*/
+
+#smrtsrch_input_padding {
+	padding-bottom:15px;
+	padding-left:0px;
+	margin:-5px;
+}
+
+#found-results {
+   display:none;
+}
+
+td.svg-ctr{ /*svg image alignment */
+   height:auto;
+   margin:0;
+   padding:0;
+   display:table-cell;
+   text-align:center;
+   align:center;
+}
+
+td.txt-ctr {/* txt for compd name in table */
+   vertical-align:text-top;
+   white-space: -webkit-pre-wrap;
+   white-space: -moz-pre-wrap !important;
+   white-space: pre-wrap;
+   word-break: break-all;
+   white-space: normal;
+}
+#containTable {
+	width:auto;
+	display:block;
+	overflow:auto;
+
+}
+
+#tablePanelHead {
+	width:auto;
+	overflow-x:auto;
+}
+
+#table-results{
+	width:100%;
+}
+
+table.subsrchRes {
+	border:none;
+	width:100%;
+	table-layout:fixed;
+}
+
+table.subsrchRes td{
+	border:3px solid;
+	width:100%;
+	border-color:#f7f7f7;
+	padding:1px;
+}
+
+table.subsrchRes tr td:first-child{ /*remove all left side borders*/
+	border-left:0;
+}
+
+table.subsrchRes tr:first-child td{/*top of every cell in first row*/
+ border-top:0;
+}
+
+table.subsrchRes tr:last-child td{/*bottom of every cell in last row */
+   border-bottom:0;
+}
+
+table.subsrchRes tr td:last-child{/*the right of last cell in every row */
+   border-right:0;
+}
+
+#datatable {
+   display:block;
+   overflow-x:auto;
+   white-space: nowrap;
+}
+
+.navbar {
+   margin-bottom: 2px;
+   margin-top: 2px;
+   border-radius: 2px;
+   background-color:#DBDAE8;
+ }/* Remove the navbar's default margin-bottom and rounded borders */
+
+ .navbar-brand {
+     font-size: 50px;
+     letter-spacing:10px;
+}
+
+.dopecmpd {
+     display: block;
+     margin-left : auto;
+     margin-right: auto;
+     width:50%;
+}
+
+.greet {
+ padding-top: 15px;
+ height:10px /* original height (25px) minus padding-top (3px) */
+ text-align: center;
+ left:-10px;
+ font-weight:bold;
+}
+
+ #replyform {
+ width:65%;
+ }
+
+td.fixed { /*cname/sname width for cmpd database table*/
+   white-space:normal;
+   width:250px; 
+ }
+
+tr:hover {
+   background-color:#cdedf7;
+}
+
+.submit-button:hover {
+  background-color: #0275d8;
+}
+
+#form-subsrch {
+  width:50%;
+  padding:5px;
+}
+
+#form-barplot {
+  /*width:22%;*/
+  display:flex;
+  align-items:flex-end;
+}
+
+#updatebarplot {
+  margin-left:5px;
+}
+
+#barplotBinNum {
+  height:24px;
+}
+
+#form-dplystruc { /*form styles*/
+  width: 650px;
+}
+
+input#updatebarplot {
+  position:relative;
+  right:2;
+}
+
+
+#lock-modal {
+  display:none;
+  background-color: black;
+  opacity: 0.6;
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  border-radius: inherit;
+}
+
+#loading-circle {
+  display:none;
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: 0;
+  right: 0;
+  margin: auto;
+  width: 40px;
+  height: 40px;
+  border: 4px solid #f3f3f3;
+  border-top: 4px solid #3498db;
+  border-radius:50%;
+  animation: spin 0.6s ease-in infinite;
+}
+
+@keyframes spin {
+  0% {
+    transform: rotate(0deg);
+  }
+  100% {
+    transform: rotate(360deg);
+  }
+

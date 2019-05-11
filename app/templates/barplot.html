@@ -1,0 +1,22 @@
+{% extends "exploredata.html" %}
+{% block subcontent%}
+
+    <div class="panel panel-default">
+	    <div class="panel-heading"><h4>Molecular weight histogram of database:</h4></div>
+		<div class="panel-body">
+			<div class="barplotPanel">
+		    <form id="form-barplot">
+			<div>
+			  <label for="barplotBinNum">Select the number of bins:</label>
+			  <input type="number" class="form-control" id="barplotBinNum" min="10" step="1" placeholder=""  max="60"  required>
+			</div>
+			  <input class="submit-button" type ='submit' id="updatebarplot">
+		    </form> 
+	    <div id="barplot-content">
+		{{ barplot_div|safe }}    
+		{{ barplot_script|safe }}
+	    </div>
+	</div>
+    </div>
+    </div>
+{% endblock %}

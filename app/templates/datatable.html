@@ -1,0 +1,76 @@
+{% extends "header.html" %}
+{% block body %} 
+
+<div style="width:100%;">
+   <table id='datatable' class='table table-striped'>
+   <thead>
+   <tr>
+      <th >ChemSpider ID</th> <!--1 -->   
+      <th class='fixed'>Common Name</th> <!--2 -->
+      <th class='fixed'>Systematic Name</th> <!--3 -->
+      <th >Std InChI</th> <!--4 -->
+      <th >Molec Form</th> <!--5 -->
+      <th >Avg Mass</th> <!--6 -->
+      <th class='fixed'>SMILES</th> <!--7 -->
+      <th >logP</th> <!--8 -->
+      <th >HBD</th> <!--9 -->
+      <th >HBA</th> <!--10 -->
+      <th >Num. Rot Bonds</th> <!--11 -->
+      <th >Lipinski Rule 5</th> <!--12 -->
+      <th >PSA</th> <!--13 -->
+      <th >Enthalpy Vap</th> <!--14 -->
+      <th >Density</th> <!--15 -->
+      <th >Boiling Point</th> <!--16 -->
+      <th >Arom Rings</th> <!--17 -->
+      <th >Num. N</th> <!--18 --> 
+      <th >Num. O</th> <!--19 --> 
+      <th >SSSR</th> <!--20 --> 
+      <th >Stereo Ctr</th> <!--21 --> 
+      <th >Natl Prod</th> <!--22 --> 
+      <th >Veber Viol</th> <!--23 --> 
+   </tr>
+  </thead>
+   <tbody>
+      {% for out in output.items %}
+      <tr>      
+         <td>{{out.csid}}</td>
+         <td class='fixed'>{{out.cname}}</td>
+         <td class='fixed'>{{out.sname}}</td>  
+         <td>{{out.stdinchi}}</td>
+         <td>{{out.mform}}</td> 
+         <td>{{out.amass}}</td> 
+         <td class='fixed'>{{out.smi}}</td> 
+         <td>{{out.logp}}</td>
+         <td>{{out.hbd}}</td>
+         <td>{{out.hba}}</td> 
+         <td>{{out.numrotbonds}}</td> 
+         <td>{{out.lrfive}}</td> 
+         <td>{{out.psa}}</td> 
+         <td>{{out.enthalpy}}</td> 
+         <td>{{out.density}}</td> 
+         <td>{{out.bp}}</td> 
+         <td>{{out.arings}}</td> 
+         <td>{{out.numN}}</td> 
+         <td>{{out.numO}}</td> 
+         <td>{{out.sssr}}</td> 
+         <td>{{out.stereoctr}}</td> 
+         <td>{{out.isnp}}</td> 
+         <td>{{out.veberv}}</td>
+      </tr>
+      {% endfor %}
+      </tbody>
+   </table>
+   </div>
+   {% for page in output.iter_pages(left_current=3,right_current=7) %}
+         {% if page %} 
+            {% if output.page == page %}
+               <a class="btn btn-info" href="{{url_for('datatable',page=page) }}">{{ page }}</a>
+         {% else %}
+               <a style="border-style: solid;padding : 4px;border-color :#5bc0de" class="btn btn-outline-info" href="{{url_for('datatable',page=page) }}">{{ page }}</a>
+          {%endif %}
+          {% else %}
+         <span><strong> ... </strong></span>
+         {% endif %}
+      {% endfor %}
+{% endblock %}
+
