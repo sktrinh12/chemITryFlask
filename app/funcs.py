@@ -7,8 +7,9 @@ import numpy as np
 from bokeh.plotting import figure
 from bokeh.models import HoverTool, ColumnDataSource,MultiLine, Circle, Label
 from bokeh.models.graphs import from_networkx
-from sklearn.preprocessing import StandardScaler,Normalizer,MinMaxScaler
+from sklearn.preprocessing import StandardScaler, Normalizer,MinMaxScaler 
 import pybel
+import openbabel as ob
 from app.models import Chemcmpd
 from app import db
 
@@ -28,6 +29,65 @@ colourSet = ['#045fb4',
  '#c9d0eb',
  '#d4daef',
  '#fbfbfb']
+
+atom_colour_dict = {6:'#000000',#carbon - black
+                   7:'#cb132c',#nitrogen - blue
+                   1:'#F5F5F5',#hydrogen - white
+                   16:'#FFFF99',#sulphur - yellow
+                   8:'#DC143C',#oxygen - red
+                   17:'#228B22',#cholorine - green
+                   9:"228B22",#flourine - green
+                   5:"#fac980",#boron - peach 
+                   35:"#77001a",#bromine - dark red
+                   53:"#27308b",#iodine - dark violet
+                   2:"#37baf5",#helium - cyan
+                   10:"#37baf5",#Neon- cyan
+                   18:"#37baf5",#Argon- cyan
+                   36:"#37baf5",#Krypton - cyan
+                   54:"#37baf5",#Xenon - cyan
+                   86:"#37baf5",#Radon - cyan
+                   3:"#ee82ee",#Lithium - light violet
+                   11:"#ee82ee",#Sodium - light violet
+                   19:"#ee82ee",#Potassium - light violet
+                   37:"#ee82ee",#Rubidium - light violet
+                   55:"#ee82ee",#Caesium - light violet
+                   87:"#ee82ee",#Francium - light violet
+                   4:"#008000",#Beryllium - green
+                   12:"#008000",#Magnesium - green
+                   20:"#008000",#caclium - green
+                   38:"#008000",#strontium - green
+                   56:"#008000",#Barium - green
+                   88:"#008000",#Radium - green
+                   26:"#b37400",#Iron - dark orange
+                   22:"#c0c0c0",#Titanium - silver
+                   15:'#FF8C00'}#phosphorous - orange
+
+def map_colour_node(atomicNum):
+    if atomicNum in atom_colour_dict.keys():
+        return atom_colour_dict[atomicNum]
+    else:
+        return '#ff8da1' #pink for other elements
+
+def genMolNodes(mol):
+	nodes = []
+	for i,atom in enumerate(mol):
+		atomicNum = atom.atomicnum
+		data = {'name':str(i+1),'colour_atom':map_colour_node(atomicNum),"size":round(atom.atomicmass),"atomicNum":atomicNum}
+		nodes.append(data)
+	return nodes
+
+def genMolLinks(mol):
+	links = []
+	for bond in ob.OBMolBondIter(mol.OBMol):
+		bo = bond.GetBO()
+		if bo != 1:
+			for _ in range(bo):
+				data = {'source':bond.GetBeginAtomIdx()-1,'target':bond.GetEndAtomIdx()-1}
+				links.append(data)
+		else:
+			data = {'source':bond.GetBeginAtomIdx()-1,'target':bond.GetEndAtomIdx()-1}
+			links.append(data)
+	return links
 
 def primeFactors(n):
     if n == 0:
@@ -166,6 +226,15 @@ def dplyStruc_ob(csid):
     except Exception as e:
         error_msg =  (f'An error occured when processing that ChemSpider ID ({e})','','false')
         return error_msg
+
+def genMOL(csid):
+    stmt = db.session.query(db.exists().where(Chemcmpd.csid==csid)).scalar()
+    if stmt:
+        result  = [(cn,sm) for cn,sm in db.session.query(Chemcmpd.cname,Chemcmpd.smi).filter_by(csid=csid)]   
+        mol = pybel.readstring('smi',result[0][1])
+        return mol 
+    else:
+        return (f'<strong>{csid} does not exist in the ChemSpider DB!</strong>')
 
 def smrtSrch(query,dfm): 
     try:

@@ -1,9 +1,83 @@
 @charset "UTF-8";
 
-div #panelContentMain {
-	margin-top:20px;
+.svg-d3-content {
+    display: inline-block;
+    position: absolute;
+    top: 0;
+    left: 0;
+  }
+
+div#d3-netx-ob {
+  flex-grow:1;
+  width:100%;
+  background-color:#7887AB;
+  /*opacity:0.9;*/
+  margin:0px;
+  display: inline-block;
+  position: relative;
+  padding-bottom: 20%;
+  padding-top: 40%;
+  vertical-align: top;
+  overflow: hidden;
 }
 
+.container{
+    display:flex;
+    width:auto;
+    padding:0px;
+    margin:0px;
+}
+
+#d3-netx-ob .node circle {
+   /*stroke: #fff; */
+   stroke: #000;
+   stroke-width:1.5px;
+}
+
+#d3-netx-ob .node text {
+  font: 10px sans-serif;
+  pointer-events: none;
+}
+
+#d3-netx-ob .link {
+   stroke: #999; 
+   stroke-width:2.75px;
+   stroke-opacity: .9;
+ }
+
+div#panelHeadingInfo {
+  font-weight: bold;  
+}
+
+div#panelContentFigure { /*bring up the bokeh tooltip layer above the list-group divs*/
+  width:50%;
+/*   background-color:#4F628E;
+  position:absolute;*/
+  z-index:999;
+  padding:0px;
+}
+
+#SMI-btn > span.K-Content.K-Glyph-Content.K-Dynamic-Created.K-Pri-Glyph-Content{
+  background-image: url(images/smile.png);
+    }
+
+div #panelContentMain {
+  height:auto;
+  width:auto;
+  display:none;
+}
+
+div #subsrch_leftcolm {
+  float:left;
+  width:15%;
+  padding:20px;
+}
+
+div #subsrch_rightcolm{
+  float:left;
+  width:85%;
+  padding:20px;
+}
 /* Style the Image Used to Trigger the Modal */
 td #topsvg {
   cursor: pointer;
@@ -117,6 +191,13 @@ float: right;
   padding:15px;
 }
 
+.row .col-4 {
+  float:left;
+  width:150px;
+  padding:15px;
+  top-margin:50px;
+}
+
 .cleared {
 	clear:both;
 }
@@ -134,12 +215,12 @@ float: right;
   width:502px;
   text-align:left;   
   border-color: rgba(0,0,255,0.5); 
-}*/
+}
 
-#smrtsrch_input_padding {
-	padding-bottom:15px;
-	padding-left:0px;
-	margin:-5px;
+*/
+
+#smrtsrch_input {
+  width:300px;
 }
 
 #found-results {
@@ -291,12 +372,15 @@ input#updatebarplot {
   display:none;
   background-color: black;
   opacity: 0.6;
-  position: absolute;
+  position: fixed;
   top: 0;
   left: 0;
-  right: 0;
-  bottom: 0;
+  /* right: 0; */
+  /* bottom: 0; */
+  height:100%;
+  width:100%;
   border-radius: inherit;
+  z-index:999;
 }
 
 #loading-circle {
@@ -313,6 +397,7 @@ input#updatebarplot {
   border-top: 4px solid #3498db;
   border-radius:50%;
   animation: spin 0.6s ease-in infinite;
+  z-index:999;
 }
 
 @keyframes spin {

@@ -1,0 +1,29 @@
+name: py36
+channels:
+  - conda-forge
+  - openbabel
+  - anaconda 
+  - bioconda 
+  - auto
+  - matsci
+dependencies:
+  - python=3.6.8
+  - openbabel=2.4.1
+  - gunicorn 
+  - bokeh=1.2.0 
+  - Flask
+  - Flask-Migrate
+  - flask-paginate
+  - flask-script
+  - matplotlib 
+  - Flask-SQLAlchemy
+  - numpy 
+  - networkx 
+  - pandas
+  - passlib
+  - PubChemPy
+  - pymysql
+  - scikit-learn
+  - SQLAlchemy
+  - WTForms 
+  

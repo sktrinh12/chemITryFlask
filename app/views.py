@@ -1,27 +1,31 @@
 from flask import (flash,render_template,redirect,url_for,request,session,send_file,send_from_directory,jsonify)
 from passlib.hash import sha256_crypt
-from MySQLdb import escape_string as thwart
+# from MySQLdb import escape_string as thwart
 import gc
 import json
 #from flask_mail import Mail, Message
 import os
 from app import app,hpath
-from app.models import RegistrationForm,SendEmailForm
+from app.models import RegistrationForm#SendEmailForm
 from flask_paginate import Pagination, get_page_args
 from bokeh.embed import components
 from bokeh.models.sources import AjaxDataSource
-from app.funcs import genHeatMapTanimoto,pd,np,pybel,Chemcmpd,db,dplyStruc_ob,smrtSrch,genBarPlot,prosDf,plotNetXBokeh,genUnitCircle,genPCAdata
+from app.funcs import genHeatMapTanimoto,pd,np,pybel,Chemcmpd,db,dplyStruc_ob,smrtSrch,genBarPlot,prosDf,plotNetXBokeh,genUnitCircle,genPCAdata, genMolLinks,genMolNodes,genMOL
 from functools import wraps
 #mail = Mail(app)
 colnames=[ 'csid', 'sname', 'cname', 'stdinchi',  'mform','amass' ,'smi', 'logp', 'hbd', 'hba',  'numrotbonds',  'lrfive',  'psa',  'enthalpy',  'density',  'bp',  'arings',  'numN',  'numO',  'sssr',  'stereoctr',  'isnp',  'veberv' ] 
+
 sqldata = db.session.query(Chemcmpd).order_by('Common_Name')#.limit(100)
 dfm_main = pd.read_sql(sqldata.statement,db.session.bind)
 dfm_main.columns = colnames
+
 # dfm_molc = dfm_main[ ['csid','cname','smi']]
 # dfm_molc.smi = dfm_molc.smi.apply(lambda x: pybel.readstring('smi',x))
 # dfm_molc.columns = ['csid','cname','molec' ]
+
 dfm_fps = pd.DataFrame({'fps':dfm_main.smi.apply(lambda x: pybel.readstring('smi',x).calcfp())})
 dfm_fps.index = dfm_main.csid #have to change index after ; causes Nan problem in calcfp() otherwise
+
 MWdata = np.array(dfm_main.amass)
 
 
@@ -94,7 +98,9 @@ def login_page():
     try:
         c, conn = create_connection(app,'chemitryusers')
         if request.method == "POST":
-            data = c.execute('SELECT * FROM users WHERE username = (%s)', thwart(request.form['username']))
+            # data = c.execute('SELECT * FROM users WHERE username = (%s)', thwart(request.form['username']))
+            query = f"SELECT * FROM users WHERE username = {request.form['username']}"
+            data = c.execute(query)
             data = c.fetchone()[2] #hash pwd of username [usrnm, email, pwd]
 
             if sha256_crypt.verify(request.form['password'],data): #returns boolean, equivalent starting data
@@ -123,13 +129,15 @@ def register_page():
             email = form.email.data
             password = sha256_crypt.encrypt(str(form.password.data)) #password hashing
             c, conn = create_connection(app,'chemitryusers')
-            x = c.execute("SELECT * FROM users WHERE username = (%s)",(thwart(username),))
+            # x = c.execute("SELECT * FROM users WHERE username = (%s)",(thwart(username),))
+            query_ = f"SELECT * FROM users WHERE username = {username}"
+            x = c.execute(query)
             if int(x) > 0:
                 flash("That username is already taken, please choose another")
                 return render_template('register.html',form=form)
             else:
-                c.execute("INSERT INTO users (username,password,email) VALUES (%s,%s,%s)",
-                            (thwart(username),thwart(password),thwart(email)))
+                query = "INSERT INTO users (username,password,email) VALUES (%s,%s,%s);"
+                c.executemany(query,username,password,email )
                 conn.commit()
                 flash("Thanks for registering!")
                 c.close()
@@ -201,19 +209,45 @@ def dplysmrtsrch():
     lengthSrchResult = result[1]
     return jsonify(htmlTable=render_template('updateSubsrch.html',svgoutput=svgoutput), query=query, lengthSrchResult=lengthSrchResult)
 
-@app.route('/dplystruc/',methods=['GET','POST'])
+# @app.route('/dplystruc/',methods=['GET','POST'])
+# def dplystruc():
+#     try:       
+#         gc.collect() 
+#         if request.method=='POST':
+#             csid  = request.form['csid']
+#             svg = dplyStruc_ob(csid)
+#             return render_template('displaystructure.html',svg=svg[0],cname=svg[1],csid=csid)
+#         elif request.method =='GET': 
+#             return render_template('displaystructure.html')  
+#     except Exception as e:      
+#         blank = f'<strong>No image to display - {e}</strong>'
+#         return render_template('displaystructure.html',svg=blank)
+
+
+@app.route('/dplystruc/')
 def dplystruc():
-    try:       
-        gc.collect() 
-        if request.method=='POST':
-            csid  = request.form['csid']
-            svg = dplyStruc_ob(csid)
-            return render_template('displaystructure.html',svg=svg[0],cname=svg[1],csid=csid)
-        elif request.method =='GET': 
-            return render_template('displaystructure.html')  
-    except Exception as e:      
-        blank = f'<strong>No image to display - {e}</strong>'
-        return render_template('displaystructure.html',svg=blank)
+    return render_template('displaystructure.html')
+
+# @app.route('/dplystruc/')
+# def dplystruc():
+#     try:       
+#         gc.collect() 
+#         csid = request.args.get('csid')
+#         if len(csid) > 3 and int(csid): 
+#             svg = dplyStruc_ob(csid)
+#             return render_template('displaystructure.html',svg=svg[0],cname=svg[1],csid=csid)
+#         else:
+#             svg = ""
+#             blank = f'<strong>No image to display - {e}</strong>'
+#             return render_template('displaystructure.html',svg=blank)
+#     except Exception as e:      
+#         svg = ""
+#         return render_template('displaystructure.html',svg=svg)
+
+@app.route('/testing/')
+def testing():
+    csid = request.args.get('csid')
+    return jsonify(csid = csid)
 
 @app.route('/updateDplyStrc/')
 def updateDplyStrc():
@@ -319,6 +353,17 @@ def pca():
 @app.route('/exploredata/')
 def exploredata():
     return render_template('exploredata.html')
+
+@app.route('/exportGraphtoJSON/')
+def exportGraphtoJSON():
+    csid = request.args.get('csid')
+    stmt=db.session.query(db.exists().where(Chemcmpd.csid==csid)).scalar()
+    if stmt:
+        cname = db.session.query(Chemcmpd.cname).filter(Chemcmpd.csid==csid).scalar()
+        mol = genMOL(csid)
+        links = genMolLinks(mol)
+        nodes = genMolNodes(mol)
+    return jsonify(nodes=nodes,links=links,cname=cname)
 
 @app.route('/som/')
 def som():

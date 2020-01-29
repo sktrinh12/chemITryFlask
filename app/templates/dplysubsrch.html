@@ -1,23 +1,32 @@
 {% extends 'header.html' %}
-{% block body %}
-
+{% block body %} 
 
 <div class="panel panel-default">
 	<div class="panel-heading"><h4>Enter SMARTS string to query the database</h4></div>
 		<div class="panel-body">
 
-			<form id="form-subsrch">  
-			<div id="smrtsrch_input_padding">
-				<label for="smrtsrch_input"><strong id="label_smrtstr"></strong></label>
-			</div>
-			<div id="smrtsrch_input_padding">
-				<input type="text" class="form-control" id="smrtsrch_input" placeholder="[OH]c1ccccc1" required>
-			</div>
-			<div id="smrtsrch_input_padding">
-			<input class="submit-button" type="submit">
-			</div>
-			</form>
+      <div class="row">
+      <div id="subsrch_leftcolm">				
+        <div class="list-group">
+          <button id="draw-smiles" type="button" class="list-group-item list-group-item-action active">Draw SMILES</button>
+          <button id="type-smiles" type="button" class="list-group-item list-group-item-action">Type SMILES</button>
+				</div>
+          </div> 
 
+        <div id="subsrch_rightcolm">
+          <!-- <div id="smi_srch_type"> -->
+
+             <div id='kekulecomposer' style='width:700px;'></div>
+
+             <form id='form-subsrch'>  
+                <!-- <label for='smrtsrch_input'><strong id='label_smrtstr'></strong></label> -->  
+                <input type='text' id='smrtsrch_input' placeholder='[OH]c1ccccc1' required> 
+                <input class='submit-button' type='submit'> 
+              </form> 
+        <!-- </div> -->
+      </div>
+    </div>
+      
 
 			<div class="panel panel-default" id="containTable">
 				<div class="panel-heading" id="tablePanelHead"><h4 id="found-results"></h4></div>

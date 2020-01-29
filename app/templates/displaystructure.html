@@ -9,24 +9,28 @@
 
 			<div class="columnContent">
 
-				<form id="form-dplystruc" method='post'>
+				<form id="form-dplystruc">
 				<label for='csid' id='lbl_csid'><strong>ChemSpider ID: </strong>{{csid|safe}}</label>
 				   <input type='text' name='csid' id='csid' placeholder="Enter CSID #" required>
 				   <input class="submit-button" type ='submit' id="submit-btn-dplystruc">
 				</form>
+        <br>
+
 				<div class="panel panel-default" id="panelContentMain">
-					<div class="panel-heading" id="panelHeadingInfo"> <font size="4">
+					<div class="panel-heading" id="panelHeadingInfo">
+            <font size="4">
 						{% if cname and csid %}
 						<b>Compound Name: </b>{{cname}} | <b>ChemSpider ID:</b> {{csid}}
-						</font></div>
-					<div class="svg-ctr" id="panelContentFigure"> {{svg|safe}} </div>
-						{%else%}
-						{{svg|safe}}
-						</div>
+						</font>
 						{%endif%}
+          </div>
+    
+          <div class="container">
+              <div id="panelContentFigure"> {{svg|safe}} </div>
+              <div id="d3-netx-ob"></div>
+          </div>
 
-
-				</div>
+        </div>
 			</div>	
 			
 			<div class="columnListGrp">
@@ -37,6 +41,7 @@
 				</a>
 				</div>
 				
+
 				<div class="list-group">
 				<a class="list-group-item" id="tanimoto">
 				<h4 class="list-group-item-heading">Tanimoto coefficient</h5>
@@ -50,6 +55,7 @@
 				<p class="list-group-item-text">Displays a NetworkX graph based on Euclidean distance metric against all compounds from the database</p>
 				</a>
 				</div>
+
 			</div>
 		</div>
 	</div>
