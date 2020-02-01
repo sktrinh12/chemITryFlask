@@ -294,9 +294,11 @@ $("#form-subsrch").on('submit',function(e) {
 		{
 		IDelem.click(function(e) {
 		e.preventDefault();
+      // console.log(IDelem);
+      // console.log(url);
 		$.ajax({
 			url:url,
-			data:{'csid':parseInt($('div#panelHeadingInfo').text().split('ChemSpider ID:')[1].trim())},
+			data:{'csid':parseInt($('div#panelHeadingInfo').text().split('|')[0].split(':')[1].trim())},
 			success: function(data) {
 				// console.log($(data.csid));
 				$('a.active').not('#dplystruc').attr('class','list-group-item'); //select the a tag that is active but not incl the main nav tab and change its class to normal
@@ -304,12 +306,14 @@ $("#form-subsrch").on('submit',function(e) {
 				var clone = $("div#panelContentFigure").clone(true);
 				var figure = $(data.html_content);
 				clone.html(figure);
+        $('div#d3-netx-ob').css("display":"none");
 				$('div#panelContentFigure').replaceWith(clone).slideUp(250);
 				}
 			});
 		});
 	}
-	if($('#panelHeadingInfo').text().length >34){ //there is a csid & cname in the panel header
+
+	if($('#panelHeadingInfo').text().length > 30){ //there is a csid & cname in the panel header
 		alink_tani = $('a#tanimoto');
 		alink_molec = $('a#dplymolec');
 		alink_tani.attr('href','#'); //make clickable
@@ -323,19 +327,22 @@ $("#form-subsrch").on('submit',function(e) {
 //HIDE THE DIV IF THERE IS NO CSID ENTERED	
 if ($('#panelContentMain').length != 1)
 {
+  if ($('li.active').children()[0].getAttribute('href') == '/dplystruc/')
+  {
   if (parseInt($('#panelContentMain').html().length)<225) 
   { 
 	//console.log($('#panelContentMain').html().length); 
     if($('div#panelHeadingInfo').text().trim().includes('does not exist'))
     {
       $('#panelContentMain').delay(300).show();
-    } else { $('#panelContentMain').hide(); }
+    } else { $('#panelContentMain').css("display": "none"); }
   }
   else 
     {
   //console.log($('#panelContentMain').html().length);
     $('#panelContentMain').delay(300).show(); 
     }
+}
 };
 
 
@@ -358,7 +365,7 @@ $( "div#panelContentFigure" ).text( "loading..." ).show();
 $("#form-dplystruc").on("submit",function(e) 
   {
     e.preventDefault();
-    $("#d3-netx-ob").empty();
+    $("#d3-netx-ob").empty().css("display": "none");
     $.when(
       $.ajax({//first ajax call
       url:"/updateDplyStrc/",

@@ -295,7 +295,7 @@ def tanimoto():
             script,div,csid,cname=['']*4
     else:
         script,div,csid,cname,error = ['']*5
-    return render_template('dplytanihm.html',script=script,div=div,csid=csid,cname=cname,error=error) 
+    return render_template('dplytanihm.html',script=script,div=div,csid=csid,cname=cname,error=error)
 
 @app.route('/updateTani/')
 def updateTani():
