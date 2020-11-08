@@ -1,6 +1,4 @@
 *.pyc
-wait-for.sh
-
 .DS_Store
 env_file_name
 *.ipynb
