@@ -2,7 +2,7 @@ from os import environ
 SQLALCHEMY_TRACK_MODIFICATIONS = False #for sqlalchemy suppress deprecation error
 #DOCKER MYSQL
 # SQLALCHEMY_DATABASE_URI =f"mysql+pymysql://{environ['MYSQL_USER']}:{environ['MYSQL_PASSWORD']}@database:3306/chemitrycmpds"
-DOCKER_CONTR = os.environ.get('DOCKER_CONTR', 'localhost')
+DOCKER_CONTR = environ.get('DOCKER_CONTR', 'localhost')
 SQLALCHEMY_DATABASE_URI =f"mysql+pymysql://{environ['MYSQL_USER']}:{environ['MYSQL_PASSWORD']}@{DOCKER_CONTR}:3306/chemitrycmpds"
 # MYSQL_DATABASE_USER = 
 # MYSQL_DATABASE_PASSWORD =
