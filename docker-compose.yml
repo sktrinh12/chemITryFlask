@@ -1,0 +1,39 @@
+version: '3.7'
+services:
+  app:
+    env_file:
+      - env_file_name
+      - DOCKER_CONTR=database
+    build: . 
+    links:
+      - database 
+    ports:
+      - "5000:5000"
+    depends_on:
+      - database
+  database:
+    image: mysql:latest
+    volumes:
+      - "./app/protected/chemitrycmpds.sql:/docker-entrypoint-initdb.d/chemitrycmpds.sql"
+      # - "./startup.sh:/tmp/startup.sh"
+    #container_name: mysql-container
+    restart: always #on-failure:3 
+    # command: --init-file=/docker-entrypoint-initdb.d/chemitrycmpds.sql
+    env_file:
+      - env_file_name
+    # environment:
+    #   - MYSQL_DATABASE=chemitrycmpds
+    #   - MYSQL_USER=sktrinh12
+    #   - MYSQL_PASSWORD=bon
+    #   - MYSQL_ROOT_PASSWORD=bon
+    ports:
+      - "33061:3306"
+    # command: "--innodb_use_native_aio=0"
+    # command: sh -c './wait-for.sh mysql-container:33061 -- python run.py'
+    # entrypoint:
+    #   - "./chemITry/startup.sh"
+  # client:
+  #   image: mysql:latest
+  #   depends_on:
+  #     - mysql-server 
+  #   command: mysql -u${MYSQL_USER} -p${MYSQL_PASSWORD} -hmysql-server chemitrycmpds
