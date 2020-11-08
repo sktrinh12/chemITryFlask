@@ -20,8 +20,8 @@ ENV PATH /opt/conda/envs/py36/bin:$PATH
 
 # Add code
 ADD . /opt/chemITry/
-COPY cmd.sh /opt/chemITry/cmd.sh
-RUN chmod +x /opt/chemITry/cmd.sh 
+# COPY cmd.sh /opt/chemITry/cmd.sh
+# RUN chmod +x /opt/chemITry/cmd.sh 
 WORKDIR /opt/chemITry
 EXPOSE 5000
 CMD python run.py
