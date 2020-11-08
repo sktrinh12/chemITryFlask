@@ -1,0 +1,11 @@
+*.pyc
+wait-for.sh
+
+.DS_Store
+env_file_name
+*.ipynb
+__pycache__
+*.sh
+bkup_jscripts.js
+p5.sound.js
+runtime.txt
