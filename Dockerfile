@@ -11,10 +11,10 @@ RUN apt-get update && \
 RUN wget --quiet https://repo.anaconda.com/miniconda/Miniconda3-latest-Linux-x86_64.sh -O ~/miniconda.sh && \
 	/bin/bash ~/miniconda.sh -b -p /opt/conda && \
 	rm ~/miniconda.sh && \
-	/opt/conda/bin/conda clean -all && \
+	/opt/conda/bin/conda clean --all && \
 	echo ". /opt/conda/etc/profile.d/conda.sh" >> ~/.bashrc 
 
-ADD /chemITry/chemITry-pkgs.yml /opt/chemITry-pkgs.yml 
+ADD chemITry-pkgs.yml /opt/chemITry-pkgs.yml 
 RUN /opt/conda/bin/conda env create -f /opt/chemITry-pkgs.yml
 ENV PATH /opt/conda/envs/py36/bin:$PATH
 
