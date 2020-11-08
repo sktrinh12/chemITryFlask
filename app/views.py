@@ -183,7 +183,7 @@ def protected(filename):
         return send_from_directory(os.path.join(app.instance_path,''),filename)
     except:
         return redirect(url_for('main'))
- 
+
 
 # @app.route('/test/',methods=['POST','GET'])
 # def test():
@@ -199,7 +199,7 @@ def protected(filename):
 @app.route('/smrtsrch/')
 def smrtsrch():
     return render_template('dplysubsrch.html')
-        
+
 @app.route('/dplysmrtsrch/')
 def dplysmrtsrch():
     gc.collect()
