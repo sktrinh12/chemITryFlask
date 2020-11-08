@@ -7,10 +7,37 @@ $.ajaxSetup({
 	   $("#lock-modal").css("display","none");
 	   $("#loading-circle").css("display","none");   
 		 }
-	 });
+});
 
 function getComposer() {
   return Kekule.Widget.getWidgetById('kekulecomposer');
+}
+
+//DISPLAY TANIMOTO HEATMAP OR NETWORKX GRAPH OR CHEMICAL STRUCTURE UPON CLICK
+function AJAXcallPaneLink(IDelem,url) {
+  IDelem.click(function(e) {
+  e.preventDefault();
+  // console.log("testing");
+  $.ajax({
+    url:url,
+    data:{'csid':parseInt($('div#panelHeadingInfo').text().split('|')[0].split(':')[1].trim())},
+    success: function(data) {
+        // console.log($(data.csid));
+        $('a.active').not('#dplystruc').attr('class','list-group-item'); //select the a tag that is active but not incl the main nav tab and change its class to normal
+        IDelem.attr('class', 'list-group-item active');
+        var clone = $("div#panelContentFigure").clone(true);
+        var figure = $(data.html_content);
+        clone.html(figure);
+        // $("div#d3-netx-ob").css("display":"none");
+        if (url.toLowerCase().indexOf('/updatedplystrc/') === -1) {
+          $("div#d3-netx-ob").hide();
+        } else {
+          $("div#d3-netx-ob").show();
+        };
+        $('div#panelContentFigure').replaceWith(clone).slideUp(250);
+      }
+    });
+  });
 }
 
 LINK_WIDTH = 2;
@@ -167,7 +194,7 @@ $(document).ready(function() {
 
    if ( $("a#smrtsrch").parent().hasClass('active') && $("button:contains('Draw SMILES')").hasClass('active') ) { 
     var composer = new Kekule.Editor.Composer(document.getElementById('kekulecomposer'));
-  composer
+    composer
     .setEnableCreateNewDoc(false)
     .setEnableLoadNewFile(false)
     .setAllowCreateNewChild(false)
@@ -181,26 +208,6 @@ $(document).ready(function() {
               } 
             ]);
   };
-/*  function kekulecomposer(elem_to_fill) {
-  $(elem_to_fill).html("<div id='kekulecomposer' style='width:700px;'></div>");
-  var composer = new Kekule.Editor.Composer(document.getElementById('kekulecomposer'));
-  composer
-    .setEnableCreateNewDoc(false)
-    .setEnableLoadNewFile(false)
-    .setAllowCreateNewChild(false)
-    .setCommonToolButtons([
-              'undo', 'redo', 'copy', 'cut', 'paste', 'zoomIn', 'reset', 'zoomOut', 'config', 'objInspector',
-              {'name': 'submitSmile',     
-                'widget': Kekule.Widget.RadioButton,   // important, set the widget class
-                'text': 'Submit', 
-                'hint': 'Submit SMILES string', 
-                'id': 'SMI-btn' 
-              } 
-            ]);
-  };
-
-  if ( $("a#smrtsrch").parent().hasClass('active') && $("button:contains('Draw SMILES')").hasClass('active') ) { kekulecomposer("#smi_srch_type"); }else if  ( $("a#smrtsrch").parent().hasClass('active') && $("button:contains('Type SMILES')").hasClass('active') ) {$("#smi_srch_type").html(smrtsrchdashboard);};
-*/
 
   $("#type-smiles").on('click',function() {
     $("#draw-smiles").attr('class', 'list-group-item list-group-item-action');
@@ -234,7 +241,7 @@ $("#SMI-btn").on('click',function(e) {
       $('#table-results').html(reply.htmlTable).fadeIn(500);
       $('#found-results').fadeIn(100);
       },
-    error: function(err)
+      error: function(err)
       {
       console.log(err);
       alert('Error occured!'+'('+err+')');
@@ -288,31 +295,6 @@ $("#form-subsrch").on('submit',function(e) {
      	return false; //returns nothing if doesn't run thru code
   } ); 
 
-//DISPLAY TANIMOTO HEATMAP OR NETWORKX GRAPH OR CHEMICAL STRUCTURE UPON CLICK
-
-	function AJAXcallPaneLink(IDelem,url) 
-		{
-		IDelem.click(function(e) {
-		e.preventDefault();
-      // console.log(IDelem);
-      // console.log(url);
-		$.ajax({
-			url:url,
-			data:{'csid':parseInt($('div#panelHeadingInfo').text().split('|')[0].split(':')[1].trim())},
-			success: function(data) {
-				// console.log($(data.csid));
-				$('a.active').not('#dplystruc').attr('class','list-group-item'); //select the a tag that is active but not incl the main nav tab and change its class to normal
-				IDelem.attr('class', 'list-group-item active');
-				var clone = $("div#panelContentFigure").clone(true);
-				var figure = $(data.html_content);
-				clone.html(figure);
-        $('div#d3-netx-ob').css("display":"none");
-				$('div#panelContentFigure').replaceWith(clone).slideUp(250);
-				}
-			});
-		});
-	}
-
 	if($('#panelHeadingInfo').text().length > 30){ //there is a csid & cname in the panel header
 		alink_tani = $('a#tanimoto');
 		alink_molec = $('a#dplymolec');
@@ -335,7 +317,10 @@ if ($('#panelContentMain').length != 1)
     if($('div#panelHeadingInfo').text().trim().includes('does not exist'))
     {
       $('#panelContentMain').delay(300).show();
-    } else { $('#panelContentMain').css("display": "none"); }
+    } else { 
+      // $('#panelContentMain').css("display": "none"); }
+      $('#panelContentMain').hide(); 
+    }
   }
   else 
     {
@@ -345,27 +330,11 @@ if ($('#panelContentMain').length != 1)
 }
 };
 
-
-
-//SHOW LOADING OR INVALID TEXT DURING FORM SUBMISSION
-/*$("#form-dplystruc").submit(function( event ) {
-  if ( $( "input:first" ).val().toString().length >= 3 ||typeof($("input:first").val()) ==='number' ) {
-$( "div#panelContentFigure" ).text( "loading..." ).show();
-     return;
-	}
-	$("div#panelContentFigure" ).text( "Not valid!" ).show().fadeOut( 1000 );
-	event.preventDefault();
-	});
-*/
-  //D3 NETWORKX VISUAL
-
-    // First, we specify the size of the canvas
-    // containing the visualization (size of the
-    // <div> element).
 $("#form-dplystruc").on("submit",function(e) 
   {
     e.preventDefault();
-    $("#d3-netx-ob").empty().css("display": "none");
+    // $("#d3-netx-ob").empty().css("display": "none");
+    $("#d3-netx-ob").empty().hide();
     $.when(
       $.ajax({//first ajax call
       url:"/updateDplyStrc/",
@@ -395,82 +364,3 @@ $("#form-dplystruc").on("submit",function(e)
   }); //end submit function
 
 }); //end document ready
-
-
-    /*
-	if ($('#xplrDataTabs').length && !$('#xplrDataTabs ~ .panel.panel-default .panel-body').length) {
-	//window.location = '/barplot/';
-	console.log($('#xplrDataTabs ~ .panel.panel-default .panel-body').length);
-	}
-
-
- $("#exploredata").ready(function(){
-	$('a[href="/barplot/"]').click();
- 	});
-
-
-document.addEventListener("DOMContentLoaded",function(){
-$(window).on('load',function(){
-$(document).ready(function(){
-	let elementsArray = document.querySelectorAll("#topsvg");
-	var tableBody = document.querySelectorAll('tbody');
-	console.log(tableBody);
-     	let elementsArray = document.querySelectorAll("#topsvg");
-	console.log(elementsArray);
-	elementsArray.forEach(function(elem) {
-	    elem.addEventListener("click", function(){
-		    var title = elem.getElementsByTagName('title')[0].innerHTML.replace(' - Open Babel Depiction','');
-		    var clone = elem.cloneNode(true);
-		    clone.setAttribute('width','550px');
-		    clone.setAttribute('height','550px');
-		    //console.log('width: ' + clone.getAttribute('width'));
-		    //console.log('height: ' + clone.getAttribute('height'));
-		$('#svgmodal').css("display","block");
-		$('#svgimg').html(clone); 
-		$('#caption').text(title);
-	  return false;
-	 });
-		$('#xclose').click(function () {
-		$('#svgmodal').css("display","none");
-	    });
-    });
-});
-
- SWITCH TABS TEST     
-function activateTab(tab){
-    $('.nav-tabs a[href="#' + tab + '"]').tab('show');
-}
-
-function switchTab(){
-   $(".nav-tabs li:nth-child(2) a").tab('show'); 
-};
-
-//bar plot testing (other method)
-  $(document).ready(function(){
-        $('#updatebarplot').click(function(e){
-          e.preventDefault()
-          var inputdata = $("#barplotBinNum").val();
-          $.ajax({
-            url:"./update_barplot",
-            type:'POST',
-            data:{'binNum':inputdata},
-            success : function(data){
-              // server returns rendered "update_content.html"
-              // which is just pure html, use this to replace the existing
-              // html within the "plot content" div
-              $('#barplot-content').html(data);
-             
-            }
-          })
-        });
-      }); 
-
-
-	$(window).on('load',function(){
-		var data = [];
-		$('#topsvg').each(function(){
-			data.push($(this).html());
-		});
-		console.log(data);
-	});
-  */
