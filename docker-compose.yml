@@ -14,6 +14,8 @@ services:
       - database
   database:
     image: mysql:latest
+    cap_add:
+      - SYS_NICE  # CAP_SYS_NICE # prevents mbind oepration not permitted error
     volumes:
       - "./app/protected/chemitrycmpds.sql:/docker-entrypoint-initdb.d/chemitrycmpds.sql"
       # - "./startup.sh:/tmp/startup.sh"
