@@ -3,6 +3,7 @@ services:
   app:
     env_file:
       - env_file_name
+    environment:
       - DOCKER_CONTR=database
     build: . 
     links:
